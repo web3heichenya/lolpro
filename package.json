@@ -1,0 +1,165 @@
+{
+  "name": "lol-pro",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A lightweight League of Legends desktop assistant, with LCU + LiveClient auto-detection, champion builds, and an in-game overlay.",
+  "author": "web3heichenya",
+  "type": "module",
+  "packageManager": "pnpm@9.12.3",
+  "scripts": {
+    "doctor": "node scripts/doctor.mjs",
+    "native:node": "pnpm rebuild better-sqlite3",
+    "native:electron": "node scripts/ensure-electron-native.mjs",
+    "dev": "pnpm run native:electron && concurrently -k -n VITE,ELECTRON -c cyan,magenta \"vite --strictPort\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 node scripts/esbuild-electron.mjs --watch\"",
+    "dev:electron": "pnpm run native:electron && wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 node scripts/esbuild-electron.mjs --watch",
+    "build": "tsc -b && vite build && node scripts/esbuild-electron.mjs",
+    "start": "pnpm run native:electron && electron dist-electron/main.cjs",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "typecheck": "tsc -b --pretty false && tsc -p tsconfig.electron.json --pretty false --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:check": "drizzle-kit check",
+    "arch:check": "depcruise --config .dependency-cruiser.cjs \"src/**/*.ts\" \"src/**/*.tsx\" \"electron/**/*.ts\" \"shared/**/*.ts\"",
+    "deadcode:check": "knip",
+    "quality:gate": "pnpm lint && pnpm typecheck && pnpm arch:check && pnpm deadcode:check && pnpm build",
+    "preview": "vite preview",
+    "dist": "pnpm run build && pnpm run native:electron && electron-builder",
+    "prepare": "husky",
+    "postinstall": "pnpm run native:node"
+  },
+  "main": "dist-electron/main.cjs",
+  "build": {
+    "appId": "com.heichen.lolassistant",
+    "productName": "LOLPro",
+    "asar": true,
+    "afterPack": "scripts/after-pack.mjs",
+    "compression": "maximum",
+    "electronLanguages": [
+      "en-US",
+      "zh-CN"
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+    ],
+    "files": [
+      "dist/**",
+      "dist-electron/**",
+      "package.json",
+      "node_modules/better-sqlite3/package.json",
+      "node_modules/better-sqlite3/lib/**",
+      "node_modules/better-sqlite3/build/Release/*.node",
+      "!**/*.map",
+      "!**/__tests__/**",
+      "!**/test/**",
+      "!**/tests/**",
+      "!**/.github/**",
+      "!**/*.md",
+      "!**/*.markdown"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.utilities",
+      "icon": "build/icon.icns",
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "dmg": {
+      "title": "${productName} Installer ${version}${arch}",
+      "background": "build/dmg-bg.png",
+      "iconSize": 90
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "differentialPackage": false,
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/uninstallerSidebar.bmp"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build/icon.png"
+    }
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.6.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@fontsource/fraunces": "^5.2.9",
+    "@fontsource/manrope": "^5.2.8",
+    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-toggle": "^1.1.10",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@types/ws": "^8.18.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "dependency-cruiser": "^17.3.8",
+    "drizzle-kit": "^0.31.9",
+    "drizzle-orm": "^0.45.1",
+    "electron": "^37.2.0",
+    "electron-builder": "^25.1.8",
+    "electron-log": "^5.4.3",
+    "esbuild": "^0.25.10",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "knip": "^5.83.1",
+    "lint-staged": "^16.2.7",
+    "lucide-react": "^0.542.0",
+    "prettier": "^3.8.1",
+    "radix-ui": "^1.4.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "rollup-plugin-visualizer": "^6.0.5",
+    "swr": "^2.4.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.48.0",
+    "vite": "^6.4.1",
+    "wait-on": "^8.0.5",
+    "ws": "^8.19.0",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.11"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs,cjs}": [
+      "eslint --fix --max-warnings 0"
+    ],
+    "*.{json,md,css,html,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}

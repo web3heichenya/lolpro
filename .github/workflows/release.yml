@@ -1,0 +1,104 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (${{ matrix.platform.name }})
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: macOS
+            os: macos-latest
+            artifact_name: release-macos
+          - name: Windows
+            os: windows-latest
+            artifact_name: release-windows
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build release packages
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: pnpm run build && pnpm run native:electron && pnpm exec electron-builder --publish never
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.artifact_name }}
+          path: |
+            release/*.dmg
+            release/*.exe
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: dist-assets
+
+      - name: Create release and upload assets
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+          replacesArtifacts: true
+          generateReleaseNotes: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          artifacts: dist-assets/*.dmg,dist-assets/*.exe
+          body: |
+            ## LOLPro ${{ github.ref_name }}
+
+            ### 中文
+            #### 下载与安装
+            - Windows：下载 `.exe` 安装包并运行安装。
+            - macOS：下载 `.dmg` 后拖拽应用到 Applications。
+
+            #### 说明
+            - 本版本为桌面助手稳定版本，包含功能修复与体验优化。
+            - 若出现系统安全拦截，请在系统设置中手动允许后再启动。
+
+            ---
+
+            ### English
+            #### Download & Install
+            - Windows: Download the `.exe` installer and run it.
+            - macOS: Download the `.dmg` and drag the app into Applications.
+
+            #### Notes
+            - This release focuses on stability improvements and UX refinements.
+            - If the OS blocks the app, allow it in system security settings and retry.

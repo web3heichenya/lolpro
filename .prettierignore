@@ -1,0 +1,7 @@
+node_modules
+dist
+dist-electron
+release
+node_modules.bak.*
+package-lock.json
+

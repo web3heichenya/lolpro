@@ -1,0 +1,721 @@
+@import 'tailwindcss';
+
+/* shadcn/ui Tailwind v4: map CSS vars into Tailwind tokens via @theme inline. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Non-semantic surfaces for glass / marble */
+  --color-glass: var(--glass);
+  --color-glass-strong: var(--glass-strong);
+  --color-glass-border: var(--glass-border);
+  --color-marble-ink: var(--marble-ink);
+
+  /* Brand accent (project theme color). */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  /* iOS-style large rounding across shadcn components (via Tailwind radius tokens). */
+  --radius: 28px;
+
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Fraunces', ui-serif, 'New York', Georgia, serif;
+
+  /*
+    Glass in light mode needs 3 things to read clearly:
+    - a richer backdrop (tinted blobs) so translucency has something to blur
+    - lower but not "washed out" surface alpha
+    - specular highlights + subtle shadow/border to separate layers
+  */
+  /* Lighter layers should still read as translucent (avoid "solid white panels"). */
+  --background: hsl(210 40% 98% / 0.22);
+  --foreground: hsl(222.2 84% 4.9% / 0.92);
+
+  --card: hsl(210 40% 98% / 0.24);
+  --card-foreground: hsl(222.2 84% 4.9% / 0.92);
+
+  --popover: hsl(210 40% 98%);
+  --popover-foreground: hsl(222.2 84% 4.9% / 0.92);
+
+  --primary: hsl(222.2 47.4% 11.2%);
+  --primary-foreground: hsl(210 40% 98%);
+
+  --secondary: hsl(210 40% 98% / 0.14);
+  --secondary-foreground: hsl(222.2 47.4% 11.2% / 0.92);
+
+  --muted: hsl(210 40% 98% / 0.16);
+  --muted-foreground: hsl(215.4 16.3% 30% / 0.78);
+
+  --accent: hsl(210 40% 98% / 0.2);
+  --accent-foreground: hsl(222.2 47.4% 11.2% / 0.92);
+
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(210 40% 98%);
+
+  --border: hsl(222.2 84% 4.9% / 0.1);
+  --input: hsl(222.2 84% 4.9% / 0.12);
+  --ring: hsl(222.2 84% 4.9% / 0.22);
+
+  /* LoL-inspired gold (from the app icon). */
+  --brand: hsl(41 68% 52%);
+  --brand-foreground: hsl(222.2 84% 4.9% / 0.92);
+
+  --glass: hsl(210 40% 98% / 0.28);
+  --glass-strong: hsl(210 40% 98% / 0.36);
+  --glass-border: hsl(222.2 84% 4.9% / 0.12);
+  --marble-ink: hsl(222.2 84% 4.9% / 0.52);
+
+  /* Backdrop-filter is expensive in Chromium. Keep values iOS-like but sane for desktop performance. */
+  --glass-blur: 18px;
+  --glass-saturate: 1.35;
+
+  --glass-shadow: 0 22px 70px -52px rgba(0, 0, 0, 0.55);
+  --glass-shadow-strong: 0 26px 80px -56px rgba(0, 0, 0, 0.62);
+
+  --hero-art-opacity: 0.24;
+  --hero-art-blur: 8px;
+
+  /* Thicker material for drawers/sheets in light mode (iOS-style hierarchy). */
+  --sheet: hsl(210 40% 98% / 0.6);
+  --sheet-border: hsl(222.2 84% 4.9% / 0.14);
+  --sheet-overlay-bg: hsl(0 0% 0% / 0.6);
+  --sheet-overlay-blur: 10px;
+
+  --switch-thumb: hsl(0 0% 100% / 0.92);
+  --switch-thumb-border: hsl(222.2 84% 4.9% / 0.1);
+
+  /* Skill chip colors (Q/W/E/R) */
+  --skill-q-bg: hsl(248 88% 62% / 0.16);
+  --skill-q-border: hsl(248 84% 56% / 0.45);
+  --skill-q-text: hsl(248 72% 38% / 0.95);
+
+  --skill-w-bg: hsl(170 82% 40% / 0.16);
+  --skill-w-border: hsl(170 82% 36% / 0.45);
+  --skill-w-text: hsl(168 75% 24% / 0.95);
+
+  --skill-e-bg: hsl(40 90% 52% / 0.2);
+  --skill-e-border: hsl(39 88% 46% / 0.5);
+  --skill-e-text: hsl(34 88% 30% / 0.95);
+
+  --skill-r-bg: hsl(336 88% 56% / 0.16);
+  --skill-r-border: hsl(336 86% 48% / 0.46);
+  --skill-r-text: hsl(336 78% 34% / 0.95);
+
+  --skill-neutral-bg: hsl(210 40% 98% / 0.18);
+  --skill-neutral-border: hsl(222.2 84% 4.9% / 0.18);
+  --skill-neutral-text: hsl(222.2 47.4% 11.2% / 0.88);
+
+  /* SVG noise (tiny) to add "material" texture. */
+  --noise-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+}
+
+.dark {
+  --background: hsl(0 0% 0% / 0.16);
+  --foreground: hsl(210 40% 98% / 0.92);
+
+  --card: hsl(0 0% 0% / 0.3);
+  --card-foreground: hsl(210 40% 98% / 0.92);
+
+  --popover: hsl(0 0% 0%);
+  --popover-foreground: hsl(210 40% 98% / 0.92);
+
+  --primary: hsl(210 40% 98% / 0.92);
+  --primary-foreground: hsl(222.2 47.4% 11.2% / 0.92);
+
+  --secondary: hsl(0 0% 100% / 0.1);
+  --secondary-foreground: hsl(210 40% 98% / 0.92);
+
+  --muted: hsl(0 0% 100% / 0.08);
+  --muted-foreground: hsl(215 20.2% 70% / 0.78);
+
+  --accent: hsl(0 0% 100% / 0.1);
+  --accent-foreground: hsl(210 40% 98% / 0.92);
+
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(210 40% 98%);
+
+  --border: hsl(210 40% 98% / 0.14);
+  --input: hsl(210 40% 98% / 0.16);
+  --ring: hsl(210 40% 98% / 0.24);
+
+  --brand: hsl(41 74% 56%);
+  --brand-foreground: hsl(222.2 84% 4.9% / 0.92);
+
+  --glass: hsl(0 0% 0% / 0.26);
+  --glass-strong: hsl(0 0% 0% / 0.34);
+  --glass-border: hsl(210 40% 98% / 0.16);
+  --marble-ink: hsl(210 40% 98% / 0.6);
+
+  --glass-shadow: 0 22px 70px -52px rgba(0, 0, 0, 0.68);
+  --glass-shadow-strong: 0 26px 80px -56px rgba(0, 0, 0, 0.72);
+
+  --hero-art-opacity: 0.3;
+  --hero-art-blur: 10px;
+
+  --sheet: hsl(0 0% 0% / 0.4);
+  --sheet-border: hsl(210 40% 98% / 0.16);
+  --sheet-overlay-bg: hsl(0 0% 0% / 0.66);
+
+  --switch-thumb: hsl(0 0% 100% / 0.92);
+  --switch-thumb-border: hsl(210 40% 98% / 0.14);
+
+  --skill-q-bg: hsl(248 84% 58% / 0.22);
+  --skill-q-border: hsl(248 88% 66% / 0.52);
+  --skill-q-text: hsl(248 95% 84% / 0.96);
+
+  --skill-w-bg: hsl(170 82% 34% / 0.22);
+  --skill-w-border: hsl(170 84% 48% / 0.5);
+  --skill-w-text: hsl(170 88% 82% / 0.96);
+
+  --skill-e-bg: hsl(40 90% 48% / 0.22);
+  --skill-e-border: hsl(41 92% 58% / 0.5);
+  --skill-e-text: hsl(42 95% 82% / 0.96);
+
+  --skill-r-bg: hsl(336 82% 48% / 0.24);
+  --skill-r-border: hsl(336 88% 60% / 0.52);
+  --skill-r-text: hsl(336 96% 86% / 0.97);
+
+  --skill-neutral-bg: hsl(0 0% 100% / 0.12);
+  --skill-neutral-border: hsl(210 40% 98% / 0.22);
+  --skill-neutral-text: hsl(210 40% 98% / 0.9);
+
+  --noise-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+  background: transparent;
+  color: var(--foreground);
+  /* Desktop app: prevent accidental text/image selection while dragging. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input,
+textarea,
+[contenteditable='true'] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+html.overlay-route,
+body.overlay-route {
+  background: transparent;
+  overflow: hidden;
+}
+
+html.overlay-route #root,
+body.overlay-route #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.app-marble {
+  /* Deprecated: kept for compatibility; replaced by `.app-frost`. */
+  background: transparent;
+}
+
+.app-frost {
+  /* Neutral "glass behind" highlight without a colored background image. */
+  background:
+    radial-gradient(1100px circle at 16% 18%, hsl(210 95% 70% / 0.22), transparent 58%),
+    radial-gradient(900px circle at 86% 72%, hsl(18 95% 68% / 0.18), transparent 60%),
+    radial-gradient(950px circle at 62% 26%, hsl(285 90% 74% / 0.12), transparent 62%),
+    radial-gradient(1000px circle at 42% 88%, hsl(200 85% 72% / 0.1), transparent 66%),
+    linear-gradient(180deg, hsl(0 0% 100% / 0.22), hsl(210 40% 98% / 0.1));
+  /* One global blur layer is far cheaper than applying backdrop-filter to every Card. */
+  backdrop-filter: blur(calc(var(--glass-blur) + 6px)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 6px)) saturate(var(--glass-saturate));
+}
+
+/*
+  macOS: the BrowserWindow uses vibrancy. Keeping CSS backdrop-filter on top of it is redundant and
+  disproportionately expensive during theme toggles / page transitions. Prefer OS material blur.
+*/
+html[data-platform='darwin'] .app-frost,
+html[data-platform='darwin'] .glass-panel,
+html[data-platform='darwin'] .glass-panel-strong,
+html[data-platform='darwin'] .bg-popover,
+html[data-platform='darwin'] .bg-secondary {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html[data-platform='darwin'] .detail-surface {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html[data-platform='darwin'] .surface-unified {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Also disable Tailwind "backdrop-blur*" utilities on macOS to avoid accidental expensive layers. */
+html[data-platform='darwin'] [class*='backdrop-blur'] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.dark .app-frost {
+  background:
+    radial-gradient(900px circle at 18% 18%, hsl(0 0% 100% / 0.06), transparent 60%),
+    radial-gradient(1100px circle at 78% 72%, hsl(0 0% 0% / 0.18), transparent 64%),
+    radial-gradient(800px circle at 62% 28%, hsl(0 0% 100% / 0.04), transparent 62%);
+}
+
+/* Windows needs stronger in-app material because system vibrancy is weaker than macOS. */
+html[data-platform='win32']:not(.dark) {
+  --background: hsl(210 40% 98% / 0.24);
+  --foreground: hsl(222.2 84% 4.9% / 0.94);
+  --card: hsl(210 40% 98% / 0.3);
+  --card-foreground: hsl(222.2 84% 4.9% / 0.94);
+  --secondary: hsl(210 40% 98% / 0.2);
+  --secondary-foreground: hsl(222.2 47.4% 11.2% / 0.9);
+  --muted: hsl(210 40% 98% / 0.22);
+  --muted-foreground: hsl(215.4 16.3% 30% / 0.86);
+  --accent: hsl(210 40% 98% / 0.24);
+  --accent-foreground: hsl(222.2 47.4% 11.2% / 0.92);
+  --glass: hsl(210 40% 98% / 0.26);
+  --glass-strong: hsl(210 40% 98% / 0.34);
+  --sheet: hsl(210 40% 98% / 0.46);
+  --sheet-overlay-bg: hsl(220 24% 8% / 0.6);
+  --sheet-overlay-blur: 16px;
+  --glass-border: hsl(222.2 84% 4.9% / 0.14);
+  --glass-blur: 24px;
+}
+
+html[data-platform='win32'].dark {
+  --background: hsl(222 24% 10% / 0.24);
+  --foreground: hsl(210 40% 98% / 0.95);
+  --card: hsl(222 24% 11% / 0.3);
+  --card-foreground: hsl(210 40% 98% / 0.95);
+  --secondary: hsl(222 22% 14% / 0.2);
+  --secondary-foreground: hsl(210 40% 98% / 0.93);
+  --muted: hsl(222 22% 14% / 0.22);
+  --muted-foreground: hsl(215 20.2% 76% / 0.9);
+  --accent: hsl(222 22% 14% / 0.26);
+  --accent-foreground: hsl(210 40% 98% / 0.95);
+  --glass: hsl(222 24% 10% / 0.28);
+  --glass-strong: hsl(222 24% 10% / 0.36);
+  --sheet: hsl(222 24% 9% / 0.5);
+  --sheet-overlay-bg: hsl(220 20% 4% / 0.6);
+  --sheet-overlay-blur: 16px;
+  --glass-border: hsl(210 40% 98% / 0.2);
+  --border: hsl(210 40% 98% / 0.2);
+  --input: hsl(210 40% 98% / 0.2);
+  --ring: hsl(210 40% 98% / 0.3);
+  --glass-blur: 24px;
+}
+
+html[data-platform='win32']:not(.overlay-route) #root {
+  overflow: hidden;
+  border-radius: 0;
+  box-shadow: 0 22px 70px -46px rgba(0, 0, 0, 0.5);
+}
+
+html[data-platform='win32'].dark:not(.overlay-route) #root {
+  box-shadow: 0 22px 70px -46px rgba(0, 0, 0, 0.62);
+}
+
+html[data-platform='win32']:not(.dark):not(.overlay-route) .app-frost {
+  background:
+    radial-gradient(1100px circle at 14% 16%, hsl(204 96% 72% / 0.24), transparent 58%),
+    radial-gradient(920px circle at 86% 72%, hsl(20 92% 68% / 0.18), transparent 60%),
+    radial-gradient(920px circle at 58% 22%, hsl(282 84% 76% / 0.14), transparent 60%),
+    linear-gradient(180deg, hsl(0 0% 100% / 0.28), hsl(210 40% 98% / 0.12));
+  backdrop-filter: blur(28px) saturate(1.45);
+  -webkit-backdrop-filter: blur(28px) saturate(1.45);
+}
+
+html[data-platform='win32'].dark:not(.overlay-route) .app-frost {
+  background:
+    radial-gradient(980px circle at 16% 18%, hsl(214 78% 62% / 0.14), transparent 60%),
+    radial-gradient(900px circle at 82% 74%, hsl(18 78% 44% / 0.1), transparent 62%),
+    radial-gradient(860px circle at 56% 24%, hsl(274 64% 58% / 0.09), transparent 64%),
+    linear-gradient(180deg, hsl(222 24% 14% / 0.22), hsl(222 24% 8% / 0.42));
+  backdrop-filter: blur(28px) saturate(1.32);
+  -webkit-backdrop-filter: blur(28px) saturate(1.32);
+}
+
+.app-noise {
+  background-image: var(--noise-image);
+  background-size: 180px 180px;
+  mix-blend-mode: soft-light;
+  opacity: 0.16;
+}
+
+.hero-art-layer {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: var(--hero-art-opacity);
+  transform: scale(1.04);
+  filter: blur(var(--hero-art-blur)) saturate(1.22) contrast(1.08);
+  will-change: opacity, transform, filter;
+}
+
+.dark .hero-art-layer {
+  filter: blur(var(--hero-art-blur)) saturate(1.12) contrast(1.04);
+}
+
+/* Native window material (macOS/Windows): keep hero layer cheap to avoid transition jank. */
+html:is([data-platform='darwin'], [data-platform='win32']) .hero-art-layer {
+  filter: none;
+  transform: none;
+  opacity: 0.2;
+  will-change: opacity;
+}
+
+html:is([data-platform='darwin'], [data-platform='win32']) .hero-art-enter,
+html:is([data-platform='darwin'], [data-platform='win32']) .hero-art-exit {
+  animation-duration: 280ms;
+  animation-timing-function: ease;
+  animation-fill-mode: both;
+}
+
+html:is([data-platform='darwin'], [data-platform='win32']) .hero-art-enter {
+  animation-name: heroArtMacFadeIn;
+}
+
+html:is([data-platform='darwin'], [data-platform='win32']) .hero-art-exit {
+  animation-name: heroArtMacFadeOut;
+}
+
+.hero-art-enter {
+  animation: heroArtFadeIn 520ms ease both;
+}
+
+.hero-art-exit {
+  animation: heroArtFadeOut 520ms ease both;
+}
+
+@keyframes heroArtFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+
+  to {
+    opacity: var(--hero-art-opacity);
+    transform: scale(1.04);
+  }
+}
+
+@keyframes heroArtFadeOut {
+  from {
+    opacity: var(--hero-art-opacity);
+    transform: scale(1.04);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes heroArtMacFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 0.2;
+  }
+}
+
+@keyframes heroArtMacFadeOut {
+  from {
+    opacity: 0.2;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.dark .app-noise {
+  mix-blend-mode: overlay;
+  opacity: 0.14;
+}
+
+.glass-panel {
+  background:
+    linear-gradient(135deg, hsl(0 0% 100% / 0.32), transparent 46%),
+    linear-gradient(180deg, hsl(0 0% 100% / 0.22), transparent 30%), var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-panel-strong {
+  background:
+    linear-gradient(135deg, hsl(0 0% 100% / 0.36), transparent 46%),
+    linear-gradient(180deg, hsl(0 0% 100% / 0.24), transparent 30%), var(--glass-strong);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(calc(var(--glass-blur) + 6px)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 6px)) saturate(var(--glass-saturate));
+  box-shadow: var(--glass-shadow-strong);
+}
+
+.overlay-frost-hover {
+  backdrop-filter: blur(calc(var(--glass-blur) + 14px)) saturate(calc(var(--glass-saturate) + 0.14));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 14px)) saturate(calc(var(--glass-saturate) + 0.14));
+  box-shadow: 0 20px 72px -34px rgba(0, 0, 0, 0.72);
+}
+
+.sheet-panel {
+  background:
+    linear-gradient(135deg, hsl(0 0% 100% / 0.26), transparent 46%),
+    linear-gradient(180deg, hsl(0 0% 100% / 0.16), transparent 30%), var(--sheet);
+  border: 1px solid var(--sheet-border);
+  box-shadow: var(--glass-shadow-strong);
+  backdrop-filter: blur(calc(var(--glass-blur) + 6px)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 6px)) saturate(var(--glass-saturate));
+}
+
+.sheet-overlay {
+  background: var(--sheet-overlay-bg);
+  backdrop-filter: blur(var(--sheet-overlay-blur)) saturate(1.08);
+  -webkit-backdrop-filter: blur(var(--sheet-overlay-blur)) saturate(1.08);
+}
+
+html[data-platform='darwin'] .sheet-overlay {
+  backdrop-filter: blur(14px) saturate(1.06);
+  -webkit-backdrop-filter: blur(14px) saturate(1.06);
+}
+
+/* Windows: strengthen regular mode tab active/hover visuals to keep contrast over acrylic backgrounds. */
+html[data-platform='win32'] .sidebar-mode-item.sidebar-mode-item-regular.sidebar-mode-item-active {
+  border-color: hsl(210 40% 98% / 0.34) !important;
+  background: linear-gradient(
+    90deg,
+    hsl(210 30% 84% / 0.34) 0%,
+    hsl(210 22% 76% / 0.26) 44%,
+    transparent 100%
+  ) !important;
+  box-shadow: 0 16px 44px -34px rgba(0, 0, 0, 0.56);
+}
+
+html[data-platform='win32'] .sidebar-mode-item.sidebar-mode-item-regular.sidebar-mode-item-inactive:hover {
+  border-color: hsl(210 40% 98% / 0.34) !important;
+  background: linear-gradient(
+    90deg,
+    hsl(210 30% 84% / 0.34) 0%,
+    hsl(210 22% 76% / 0.26) 44%,
+    transparent 100%
+  ) !important;
+}
+
+html[data-platform='win32'] .sidebar-mode-item.sidebar-mode-item-regular .sidebar-mode-item-icon {
+  border-color: hsl(210 40% 98% / 0.16);
+}
+
+html[data-platform='win32']
+  .sidebar-mode-item.sidebar-mode-item-regular.sidebar-mode-item-active
+  .sidebar-mode-item-icon {
+  border-color: hsl(210 40% 98% / 0.32);
+  background: linear-gradient(
+    90deg,
+    hsl(210 28% 84% / 0.3) 0%,
+    hsl(210 22% 76% / 0.22) 44%,
+    transparent 100%
+  ) !important;
+}
+
+html[data-platform='win32']
+  .sidebar-mode-item.sidebar-mode-item-regular.sidebar-mode-item-inactive:hover
+  .sidebar-mode-item-icon {
+  border-color: hsl(210 40% 98% / 0.32);
+  background: linear-gradient(
+    90deg,
+    hsl(210 28% 84% / 0.3) 0%,
+    hsl(210 22% 76% / 0.22) 44%,
+    transparent 100%
+  ) !important;
+}
+
+.dark .sheet-panel {
+  background:
+    linear-gradient(135deg, hsl(0 0% 100% / 0.14), transparent 46%),
+    linear-gradient(180deg, hsl(0 0% 100% / 0.09), transparent 30%), var(--sheet);
+}
+
+.dark .glass-panel {
+  background:
+    linear-gradient(135deg, hsl(0 0% 100% / 0.12), transparent 46%),
+    linear-gradient(180deg, hsl(0 0% 100% / 0.08), transparent 30%), var(--glass);
+}
+
+.dark .glass-panel-strong {
+  background:
+    linear-gradient(135deg, hsl(0 0% 100% / 0.14), transparent 46%),
+    linear-gradient(180deg, hsl(0 0% 100% / 0.09), transparent 30%), var(--glass-strong);
+}
+
+/* Unified surface style for detail panels + key controls (icon buttons/sidebar active item). */
+.surface-unified,
+.detail-surface {
+  background:
+    linear-gradient(135deg, hsl(0 0% 100% / 0.08), transparent 46%),
+    linear-gradient(180deg, hsl(0 0% 100% / 0.06), transparent 30%), var(--card);
+  border-color: var(--border);
+  backdrop-filter: blur(12px) saturate(1.04);
+  -webkit-backdrop-filter: blur(12px) saturate(1.04);
+  box-shadow: var(--glass-shadow);
+}
+
+.dark .surface-unified,
+.dark .detail-surface {
+  background:
+    linear-gradient(135deg, hsl(0 0% 100% / 0.14), transparent 46%),
+    linear-gradient(180deg, hsl(0 0% 100% / 0.1), transparent 30%), var(--card);
+  border-color: var(--border);
+  backdrop-filter: blur(12px) saturate(1.04);
+  -webkit-backdrop-filter: blur(12px) saturate(1.04);
+  box-shadow: var(--glass-shadow);
+}
+
+.skill-chip {
+  --skill-chip-bg: var(--skill-neutral-bg);
+  --skill-chip-border: var(--skill-neutral-border);
+  --skill-chip-text: var(--skill-neutral-text);
+
+  background:
+    linear-gradient(180deg, hsl(0 0% 100% / 0.16), transparent 40%), var(--skill-chip-bg) !important;
+  border-color: var(--skill-chip-border) !important;
+  color: var(--skill-chip-text) !important;
+  backdrop-filter: blur(6px) saturate(1.02);
+  -webkit-backdrop-filter: blur(6px) saturate(1.02);
+}
+
+.skill-chip-q {
+  --skill-chip-bg: var(--skill-q-bg);
+  --skill-chip-border: var(--skill-q-border);
+  --skill-chip-text: var(--skill-q-text);
+}
+
+.skill-chip-w {
+  --skill-chip-bg: var(--skill-w-bg);
+  --skill-chip-border: var(--skill-w-border);
+  --skill-chip-text: var(--skill-w-text);
+}
+
+.skill-chip-e {
+  --skill-chip-bg: var(--skill-e-bg);
+  --skill-chip-border: var(--skill-e-border);
+  --skill-chip-text: var(--skill-e-text);
+}
+
+.skill-chip-r {
+  --skill-chip-bg: var(--skill-r-bg);
+  --skill-chip-border: var(--skill-r-border);
+  --skill-chip-text: var(--skill-r-text);
+}
+
+/* Default surfaces: keep them translucent, but don't blur each Card (very expensive in a large grid). */
+.bg-background,
+.bg-card,
+.bg-muted {
+  /* Subtle inner highlight for "glass edge" feel (global, not per-component). */
+  background-image: linear-gradient(180deg, hsl(0 0% 100% / 0.1), transparent 26%);
+}
+
+.dark .bg-background,
+.dark .bg-card,
+.dark .bg-muted {
+  background-image: linear-gradient(180deg, hsl(0 0% 100% / 0.1), transparent 26%);
+}
+
+/* Overlays and small interactive surfaces can keep blur without a huge perf hit. */
+.bg-popover,
+.bg-secondary {
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  background-image: linear-gradient(180deg, hsl(0 0% 100% / 0.1), transparent 26%);
+}
+
+.dark .bg-popover,
+.dark .bg-secondary {
+  background-image: linear-gradient(180deg, hsl(0 0% 100% / 0.1), transparent 26%);
+}
+
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 220px;
+}
+
+.shadow-sm {
+  /* Softer, wider shadow to match glass depth. */
+  box-shadow: 0 18px 60px -46px rgba(0, 0, 0, 0.42);
+}
+
+.hex-clip {
+  clip-path: polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%);
+}
+
+/* Electron macOS custom titlebar regions */
+.app-drag {
+  -webkit-app-region: drag;
+}
+
+.app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Make wide drag regions ergonomic without breaking interactions. */
+.app-drag button,
+.app-drag a,
+.app-drag input,
+.app-drag textarea,
+.app-drag select,
+.app-drag [role='button'],
+.app-drag [role='menuitem'],
+.app-drag [data-radix-scroll-area-viewport] {
+  -webkit-app-region: no-drag;
+}
