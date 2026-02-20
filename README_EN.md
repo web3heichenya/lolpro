@@ -86,3 +86,11 @@ For official distribution, it is recommended to configure signing parameters in 
 
 - macOS: `APPLE_ID` / `APPLE_APP_SPECIFIC_PASSWORD` / `CSC_LINK` / `CSC_KEY_PASSWORD`
 - Windows: Code signing certificate related secrets
+
+## Disclaimer
+
+This project is developed based on Riot's official LCU API. It does not employ intrusive techniques and theoretically does not directly interfere with or modify core game data. However, please be aware that using any third-party tool carries unforeseen risks related to game updates or anti-cheat systems.
+
+**Users must fully understand and assume all responsibility for any consequences arising from the use of this software, including but not limited to account bans or data loss.** The developer is not liable for any direct or indirect damages incurred.
+
+This application is not officially supported or endorsed by Riot Games. All game-related rights are reserved by Riot Games. This disclaimer is provided for transparency. We appreciate your understanding and encourage fair play.
