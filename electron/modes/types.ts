@@ -14,4 +14,5 @@ export interface BuildProvider {
     region?: OpggRegion
     tier?: OpggTier
   }) => Promise<BuildResult>
+  shouldRefreshCachedBuild: (build: BuildResult) => boolean
 }

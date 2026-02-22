@@ -1,5 +1,6 @@
 import type { BuildResult, Settings } from '@/app/types'
 
+import { AramOverlayContent } from './AramOverlayContent'
 import { ArenaOverlayContent } from './ArenaOverlayContent'
 import { AramMayhemOverlayContent } from './AramMayhemOverlayContent'
 
@@ -12,6 +13,9 @@ export function ModeOverlayContent({
 }) {
   if (build.mode === 'arena') {
     return <ArenaOverlayContent build={build} selectedAugmentRarity={selectedAugmentRarity} />
+  }
+  if (build.mode === 'aram') {
+    return <AramOverlayContent build={build} />
   }
   if (build.mode === 'aram-mayhem') {
     return <AramMayhemOverlayContent build={build} selectedAugmentRarity={selectedAugmentRarity} />

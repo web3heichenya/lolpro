@@ -167,6 +167,28 @@ export interface AramMayhemBuildResult extends BuildResultBase {
   synergies?: SynergyRecommendation[]
 }
 
+export interface AramBuildResult extends BuildResultBase {
+  mode: 'aram'
+  dataSource?: string
+  position?: string
+  summary?: BuildSummary
+  augments: AugmentRecommendation[]
+  items: ItemRecommendation[]
+  runes?: RuneRecommendation[]
+  summonerSpells?: SummonerSpellRecommendation[]
+  skillOrders?: SkillOrderRecommendation[]
+  skillMasteries?: SkillMasteryRecommendation[]
+  startingItems?: StartingItemsRecommendation[]
+  coreItems?: StartingItemsRecommendation[]
+  bootsItems?: StartingItemsRecommendation[]
+  situationalItems?: number[]
+  counters?: {
+    strongAgainst: CounterRecommendation[]
+    weakAgainst: CounterRecommendation[]
+  }
+  synergies?: SynergyRecommendation[]
+}
+
 export interface ArenaBuildResult extends BuildResultBase {
   mode: 'arena'
   dataSource?: string
@@ -191,7 +213,7 @@ export interface ArenaBuildResult extends BuildResultBase {
   synergies?: SynergyRecommendation[]
 }
 
-export type BuildResult = AramMayhemBuildResult | ArenaBuildResult
+export type BuildResult = AramBuildResult | AramMayhemBuildResult | ArenaBuildResult
 
 export interface LcuStatus {
   connected: boolean

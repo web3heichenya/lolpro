@@ -15,6 +15,7 @@ export function OverlayBuildEntry({
   pickRate,
   extraBadge,
   showWinRate = true,
+  hideTitle = false,
 }: {
   iconUrl?: string
   title?: string
@@ -23,6 +24,7 @@ export function OverlayBuildEntry({
   pickRate: number | null
   extraBadge?: string | null
   showWinRate?: boolean
+  hideTitle?: boolean
 }) {
   return (
     <div className="glass-panel flex min-w-0 items-center justify-between gap-2 rounded-2xl px-2.5 py-2.5">
@@ -31,7 +33,7 @@ export function OverlayBuildEntry({
           <AvatarImage src={iconUrl} alt={title ?? fallback} className="object-cover" loading="lazy" />
           <AvatarFallback className="text-[10px]">{fallbackChar(title ?? fallback)}</AvatarFallback>
         </Avatar>
-        <div className="truncate text-xs font-medium">{title ?? fallback}</div>
+        {!hideTitle ? <div className="truncate text-xs font-medium">{title ?? fallback}</div> : null}
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
         {extraBadge ? (

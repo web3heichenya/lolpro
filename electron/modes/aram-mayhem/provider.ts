@@ -1,6 +1,7 @@
 import type { BuildProvider } from '../types'
 import type { OPGGService } from '../../services/opgg/service'
 import type { BlitzWebService } from '../../services/blitz-web/service'
+import { shouldRetrySelfHeal } from '../cacheRefresh'
 
 export function createAramMayhemProvider(services: {
   opggService: Pick<OPGGService, 'getAramMayhemBuild'>
@@ -26,6 +27,23 @@ export function createAramMayhemProvider(services: {
         championId,
         lang,
       })
+    },
+
+    shouldRefreshCachedBuild(build) {
+      if (build.mode !== 'aram-mayhem') return false
+
+      const hasBaseData = (build.augments?.length ?? 0) > 0 || (build.items?.length ?? 0) > 0
+      // If a previous scrape cached an empty payload, always retry to self-heal.
+      if (!hasBaseData) return true
+
+      const missingCore = (build.coreItems?.length ?? 0) === 0
+      const missingSituational = (build.situationalItems?.length ?? 0) === 0
+      const missingSkills =
+        (build.skillMasteries?.length ?? 0) === 0 && (build.skillOrders?.length ?? 0) === 0
+      const looksLikeLegacyBrokenCache = missingCore || missingSituational || missingSkills
+      if (!looksLikeLegacyBrokenCache) return false
+
+      return shouldRetrySelfHeal(build.dt)
     },
   }
 }

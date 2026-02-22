@@ -1,7 +1,11 @@
 import type { BuildResult, ChampionProfile, ChampionSummary } from '@/app/types'
 import type { GameModeId } from '@shared/gameModes'
+import type { ComponentType } from 'react'
+import { useI18n } from '@/app/i18n'
+import { AramDetailView } from './aram/AramDetailView'
 import { AramMayhemDetailView } from './aram-mayhem/AramMayhemDetailView'
 import { ArenaDetailView } from './arena/ArenaDetailView'
+import { UnsupportedModeState } from './components/UnsupportedModeState'
 
 type Props = {
   champions: ChampionSummary[]
@@ -19,11 +23,18 @@ type Props = {
 }
 
 export function ModeDetailPanel(props: Props) {
-  if (props.modeId === 'aram-mayhem') {
-    return <AramMayhemDetailView {...props} />
+  const { t } = useI18n()
+  const viewByMode: Partial<Record<string, ComponentType<Props>>> = {
+    aram: AramDetailView,
+    'aram-mayhem': AramMayhemDetailView,
+    arena: ArenaDetailView,
   }
-  if (props.modeId === 'arena') {
-    return <ArenaDetailView {...props} />
+  const DetailView = viewByMode[props.modeId]
+
+  if (DetailView) {
+    return <DetailView {...props} />
   }
-  return null
+
+  console.warn(`[ModeDetailPanel] Unsupported mode: ${props.modeId}`)
+  return <UnsupportedModeState modeId={String(props.modeId)} message={t('detail.unsupportedMode')} />
 }

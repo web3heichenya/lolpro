@@ -8,8 +8,6 @@ import type { DataRepository } from '../../services/db/dataRepository'
 import type { SettingsStore } from '../../services/settings/settingsStore'
 
 export class BuildFetcher {
-  private static readonly ARENA_CACHE_SELF_HEAL_COOLDOWN_MS = 6 * 60 * 60 * 1000
-
   constructor(
     private readonly dataRepository: DataRepository,
     private readonly buildResolver: BuildResolver,
@@ -36,7 +34,9 @@ export class BuildFetcher {
         lang: opts.lang,
         sourceKey,
       })
-      if (cached && !this.shouldRefreshCachedBuild(opts.mode, cached)) return cached
+      if (cached && !this.buildResolver.shouldRefreshCachedBuild({ mode: opts.mode, build: cached })) {
+        return cached
+      }
     }
 
     const resolvedChampionKey = await (async () => {
@@ -70,50 +70,5 @@ export class BuildFetcher {
     })
 
     return build
-  }
-
-  private shouldRefreshCachedBuild(mode: GameModeId, build: BuildResult): boolean {
-    const dtMs = Date.parse(build.dt ?? '')
-    const recentlyFetched =
-      Number.isFinite(dtMs) && Date.now() - dtMs < BuildFetcher.ARENA_CACHE_SELF_HEAL_COOLDOWN_MS
-
-    if (mode === 'arena' && build.mode === 'arena') {
-      const comboItems = [
-        ...(build.startingItems ?? []),
-        ...(build.coreItems ?? []),
-        ...(build.bootsItems ?? []),
-      ].flatMap((combo) => combo.items ?? [])
-
-      const hasBrokenComboItem = comboItems.some(
-        (item) => item.id >= 100_000 && (!item.name || !item.iconUrl),
-      )
-      const hasBrokenFlatItem = (build.items ?? []).some((item) => {
-        const id = Number(item.itemId)
-        return Number.isFinite(id) && id >= 100_000 && (!item.name || !item.iconUrl)
-      })
-      const hasBrokenArenaItems = hasBrokenComboItem || hasBrokenFlatItem
-      if (!hasBrokenArenaItems) return false
-
-      // Self-heal once per cooldown window. If still unresolved after refetch, stop retrying
-      // and avoid infinite refresh loops.
-      return !recentlyFetched
-    }
-
-    if (mode === 'aram-mayhem' && build.mode === 'aram-mayhem') {
-      const hasBaseData = (build.augments?.length ?? 0) > 0 || (build.items?.length ?? 0) > 0
-      // If a previous scrape cached an empty payload, always retry to self-heal.
-      if (!hasBaseData) return true
-
-      const missingCore = (build.coreItems?.length ?? 0) === 0
-      const missingSituational = (build.situationalItems?.length ?? 0) === 0
-      const missingSkills =
-        (build.skillMasteries?.length ?? 0) === 0 && (build.skillOrders?.length ?? 0) === 0
-      const looksLikeLegacyBrokenCache = missingCore || missingSituational || missingSkills
-      if (!looksLikeLegacyBrokenCache) return false
-
-      return !recentlyFetched
-    }
-
-    return false
   }
 }
