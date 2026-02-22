@@ -6,6 +6,7 @@
 
 基于 Electron + React 的英雄联盟辅助工具，当前支持：
 
+- 极地大乱斗（`aram`）
 - 海克斯乱斗（`aram-mayhem`）
 - 斗魂竞技场（`arena`）
 
@@ -20,13 +21,17 @@
 
 ### 模式数据（按模式独立）
 
+- 极地大乱斗（ARAM）玩法数据：
+  - `https://lol-api-champion.op.gg/api/{region}/champions/aram/{championId}/none?tier={tier}`
+- 海克斯乱斗（ARAM Mayhem）玩法数据：
+  - 默认数据源：Blitz Datalake GraphQL
+  - 可选数据源：OP.GG 页面抓取（Next Flight 解析），通过环境变量 `ARAM_MAYHEM_SOURCE=opgg` 切换
+  - （OP.GG 抓取路径）
+    - `/lol/modes/aram-mayhem/{champion}/augments`
+    - `/lol/modes/aram-mayhem/{champion}/items`
+    - `/lol/modes/aram-mayhem/{champion}/skills`
 - 斗魂竞技场（Arena）玩法数据：
   - `https://lol-api-champion.op.gg/api/{region}/champions/arena/{championId}?tier={arenaTier}`
-- 海克斯乱斗（ARAM Mayhem）玩法数据：
-  - OP.GG 页面抓取（Next Flight 解析）
-  - `/lol/modes/aram-mayhem/{champion}/augments`
-  - `/lol/modes/aram-mayhem/{champion}/items`
-  - `/lol/modes/aram-mayhem/{champion}/skills`
 
 ## 本地缓存（SQLite）
 
