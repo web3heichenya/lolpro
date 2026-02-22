@@ -6,6 +6,7 @@
 
 基于 Electron + React 的英雄联盟辅助工具，当前支持：
 
+- 排位（`ranked`）
 - 极地大乱斗（`aram`）
 - 海克斯乱斗（`aram-mayhem`）
 - 斗魂竞技场（`arena`）
@@ -21,6 +22,8 @@
 
 ### 模式数据（按模式独立）
 
+- 排位（Ranked）玩法数据：
+  - `https://lol-api-champion.op.gg/api/{region}/champions/ranked/{championId}/{position}?tier={tier}`
 - 极地大乱斗（ARAM）玩法数据：
   - `https://lol-api-champion.op.gg/api/{region}/champions/aram/{championId}/none?tier={tier}`
 - 海克斯乱斗（ARAM Mayhem）玩法数据：
