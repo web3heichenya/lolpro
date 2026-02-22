@@ -1,4 +1,5 @@
 {
+  "app.mode.aram": "极地大乱斗",
   "app.mode.aram-mayhem": "海克斯乱斗",
   "app.mode.arena": "斗魂竞技场",
   "common.loading": "加载中",
@@ -88,6 +89,7 @@
   "detail.summary.banRate": "禁用",
   "detail.refreshBuild": "刷新构筑",
   "detail.noData": "没有数据（或尚未加载）。请稍后重试，或检查网络连接。",
+  "detail.unsupportedMode": "当前模式暂不支持该详情面板。",
   "hero.defaultTitle": "构筑与海克斯",
   "hero.defaultBlurb": "{name} 的推荐构筑、海克斯与技能加点。",
   "hero.noDescription": "暂无描述",

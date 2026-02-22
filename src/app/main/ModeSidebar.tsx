@@ -102,7 +102,7 @@ export function ModeSidebar({
                 <Button
                   variant="ghost"
                   className={cn(
-                    'group h-auto w-full justify-start gap-3 rounded-2xl border px-3 py-3 text-foreground hover:!bg-transparent hover:!text-foreground',
+                    'group h-auto w-full justify-start gap-3 rounded-2xl border px-3 py-3 text-foreground hover:bg-transparent! hover:text-foreground!',
                     mainPanel === 'ingame'
                       ? 'border-brand/45 bg-linear-to-r from-brand/26 via-brand/14 to-transparent shadow-sm'
                       : 'border-brand/30 bg-background/30 hover:border-brand/45 hover:bg-linear-to-r hover:from-brand/26 hover:via-brand/14 hover:to-transparent hover:shadow-sm',
@@ -132,7 +132,7 @@ export function ModeSidebar({
                   key={m.id}
                   variant="ghost"
                   className={cn(
-                    'sidebar-mode-item sidebar-mode-item-regular group h-auto w-full justify-start gap-3 rounded-2xl border px-3 py-3 text-foreground hover:!bg-transparent hover:!text-foreground',
+                    'sidebar-mode-item sidebar-mode-item-regular group h-auto w-full justify-start gap-3 rounded-2xl border px-3 py-3 text-foreground hover:bg-transparent! hover:text-foreground!',
                     mainPanel === 'build' && m.id === modeId
                       ? 'sidebar-mode-item-active border-border/70 bg-linear-to-r from-accent/90 via-accent/62 to-transparent shadow-sm hover:border-border/70 hover:bg-linear-to-r hover:from-accent/90 hover:via-accent/62 hover:to-transparent hover:shadow-sm'
                       : 'sidebar-mode-item-inactive border-border/45 bg-background/30 hover:border-border/70 hover:bg-linear-to-r hover:from-accent/90 hover:via-accent/62 hover:to-transparent hover:shadow-sm',

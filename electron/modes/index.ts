@@ -6,6 +6,7 @@ import type { BlitzWebService } from '../services/blitz-web/service'
 
 import { createAramMayhemProvider } from './aram-mayhem/provider'
 import { createArenaProvider } from './arena/provider'
+import { createAramProvider } from './aram/provider'
 
 export type BuildResolver = {
   getBuild: (params: {
@@ -16,21 +17,28 @@ export type BuildResolver = {
     region?: OpggRegion
     tier?: OpggTier
   }) => Promise<BuildResult>
+  shouldRefreshCachedBuild: (params: { mode: GameModeId; build: BuildResult }) => boolean
 }
 
 export function createBuildResolver(
-  opggService: Pick<OPGGService, 'getAramMayhemBuild' | 'getArenaBuild'>,
+  opggService: Pick<OPGGService, 'getAramBuild' | 'getAramMayhemBuild' | 'getArenaBuild'>,
   blitzWebService: Pick<BlitzWebService, 'getAramMayhemBuild'>,
 ): BuildResolver {
   const providers: Record<GameModeId, BuildProvider> = {
+    aram: createAramProvider(opggService),
     'aram-mayhem': createAramMayhemProvider({ opggService, blitzWebService }),
     arena: createArenaProvider(opggService),
   }
 
+  function resolveProvider(mode: GameModeId): BuildProvider {
+    const provider = providers[mode]
+    if (!provider) throw new Error(`Unsupported mode: ${mode}`)
+    return provider
+  }
+
   return {
     async getBuild(params) {
-      const provider = providers[params.mode]
-      if (!provider) throw new Error(`Unsupported mode: ${params.mode}`)
+      const provider = resolveProvider(params.mode)
       return await provider.getBuild({
         championId: params.championId,
         championKey: params.championKey,
@@ -38,6 +46,9 @@ export function createBuildResolver(
         region: params.region,
         tier: params.tier,
       })
+    },
+    shouldRefreshCachedBuild({ mode, build }) {
+      return resolveProvider(mode).shouldRefreshCachedBuild(build)
     },
   }
 }

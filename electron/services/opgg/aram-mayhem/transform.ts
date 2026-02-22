@@ -61,8 +61,7 @@ function resolveArenaSummary(arena: OpggChampionBuildResponse) {
 }
 
 export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhemBuildResult {
-  const { championId, arena, patch, assetPatch, dataSource, itemMetaMap, spellMetaMap, augmentMetaMap } =
-    input
+  const { championId, arena, assetPatch, dataSource, itemMetaMap, spellMetaMap, augmentMetaMap } = input
 
   const arenaData = arena.data || {}
   const positionData = asArray(arenaData.positions).find(
@@ -224,9 +223,9 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
   bootsItems.forEach((combo, idx) => combo.itemIds.forEach((id) => pushFlatItem(id, combo, idx + 1)))
   situationalItems.forEach((id, idx) => pushFlatItem(id, undefined, 100 + idx))
 
-  const items = Array.from(flatItemMap.values())
-    .sort((a, b) => (a.tier ?? 999) - (b.tier ?? 999) || (b.pickRate ?? -1) - (a.pickRate ?? -1))
-    .slice(0, 24)
+  const items = Array.from(flatItemMap.values()).sort(
+    (a, b) => (a.tier ?? 999) - (b.tier ?? 999) || (b.pickRate ?? -1) - (a.pickRate ?? -1),
+  )
 
   const augmentsById = new Map<string, AramMayhemBuildResult['augments'][number]>()
   for (const group of asArray(arenaData.augment_group)) {
@@ -299,7 +298,7 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
   return {
     mode: 'aram-mayhem',
     championId: String(championId),
-    patch,
+    patch: assetPatch,
     dt: new Date().toISOString(),
     dataSource: dataSource || 'unknown',
     position: (resolvedPosition?.name || 'arena').toLowerCase(),

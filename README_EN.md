@@ -6,6 +6,7 @@
 
 A League of Legends assistant tool based on Electron + React. Currently supports:
 
+- ARAM (`aram`)
 - ARAM Mayhem (`aram-mayhem`)
 - Arena (`arena`)
 
@@ -20,13 +21,17 @@ Features include client status detection, champion detail pages, in-game overlay
 
 ### Mode-Specific Data
 
+- **ARAM** Gameplay Data:
+  - `https://lol-api-champion.op.gg/api/{region}/champions/aram/{championId}/none?tier={tier}`
+- **ARAM Mayhem** Gameplay Data:
+  - Default source: Blitz Datalake GraphQL
+  - Optional source: OP.GG page scraping (Next Flight parsing), switch via `ARAM_MAYHEM_SOURCE=opgg`
+  - (OP.GG scraping paths)
+    - `/lol/modes/aram-mayhem/{champion}/augments`
+    - `/lol/modes/aram-mayhem/{champion}/items`
+    - `/lol/modes/aram-mayhem/{champion}/skills`
 - **Arena** Gameplay Data:
   - `https://lol-api-champion.op.gg/api/{region}/champions/arena/{championId}?tier={arenaTier}`
-- **ARAM Mayhem** Gameplay Data:
-  - OP.GG page scraping (Next Flight parsing)
-  - `/lol/modes/aram-mayhem/{champion}/augments`
-  - `/lol/modes/aram-mayhem/{champion}/items`
-  - `/lol/modes/aram-mayhem/{champion}/skills`
 
 ## Local Cache (SQLite)
 

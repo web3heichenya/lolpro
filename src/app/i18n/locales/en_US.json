@@ -1,4 +1,5 @@
 {
+  "app.mode.aram": "ARAM",
   "app.mode.aram-mayhem": "ARAM Mayhem",
   "app.mode.arena": "Arena",
   "common.loading": "Loading",
@@ -88,6 +89,7 @@
   "detail.summary.banRate": "Ban",
   "detail.refreshBuild": "Refresh build",
   "detail.noData": "No data yet. Please retry later or check your network connection.",
+  "detail.unsupportedMode": "Current mode is not supported in this detail panel.",
   "hero.defaultTitle": "Build & Augments",
   "hero.defaultBlurb": "{name} build, augments and skill priorities.",
   "hero.noDescription": "No description",

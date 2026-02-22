@@ -1,10 +1,11 @@
-export const GAME_MODES = ['aram-mayhem', 'arena'] as const
+export const GAME_MODES = ['aram', 'aram-mayhem', 'arena'] as const
 
 export type GameModeId = (typeof GAME_MODES)[number]
 
 export const DEFAULT_GAME_MODE: GameModeId = 'aram-mayhem'
 
 export const SUPPORTED_QUEUE_TO_MODE: Record<number, GameModeId> = {
+  450: 'aram',
   2400: 'aram-mayhem',
   1700: 'arena',
   1710: 'arena',
@@ -39,6 +40,15 @@ export const MODE_META: Record<GameModeId, Omit<ModeMeta, 'id'>> = {
       accentA: '43 96% 56%',
       accentB: '12 94% 57%',
       accentC: '199 89% 57%',
+    },
+  },
+  aram: {
+    label: 'ARAM',
+    features: ['装备推荐', '技能加点推荐', 'LCU 自动识别', '游戏内浮窗'],
+    theme: {
+      accentA: '198 93% 60%',
+      accentB: '210 92% 52%',
+      accentC: '182 75% 48%',
     },
   },
 }

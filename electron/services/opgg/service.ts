@@ -1,4 +1,5 @@
 import type {
+  AramBuildResult,
   AramMayhemBuildResult,
   ArenaBuildResult,
   ChampionProfile,
@@ -18,6 +19,7 @@ import {
 import { fetchJson } from '../net/http'
 import { opggMetaLocale, stripMarkup, toNum } from './helpers'
 import { transformOpggToArenaBuild } from './arena/transform'
+import { transformOpggToAramBuild } from './aram/transform'
 import { OPGGAssetsService } from './assets'
 import { scrapeAramMayhemFromOpggWeb } from '../opgg-web/aram-mayhem/scrape'
 import { normalizeChampionKey } from '../../state/gameContextLogic'
@@ -157,6 +159,49 @@ export class OPGGService {
       counters: undefined,
       synergies: undefined,
     }
+  }
+
+  async getAramBuild(params: {
+    championId: string
+    lang?: RiotLocale
+    region?: OpggRegion
+    tier?: OpggTier
+  }): Promise<AramBuildResult> {
+    const championId = Number(params.championId)
+    if (!Number.isFinite(championId) || championId <= 0) {
+      throw new Error(`Invalid champion id: ${params.championId}`)
+    }
+
+    const region = isOpggRegion(params.region) ? params.region : DEFAULT_OPGG_REGION
+    const tier = isOpggTier(params.tier) ? params.tier : DEFAULT_OPGG_TIER
+    const aramUrl = buildOpggUrl(
+      `/api/${region}/champions/aram/${championId}/none?tier=${encodeURIComponent(tier)}`,
+    )
+
+    const aram = await fetchJson<OpggChampionBuildResponse>(aramUrl, { timeoutMs: 20_000 })
+    const patch = aram.meta?.version || 'latest'
+    const ddragonPatch = await this.assets.resolveDdragonPatch(patch).catch(() => patch)
+    const [ddragonItemMetaMap, cdragonItemMetaMap, spellMetaMap] = await Promise.all([
+      this.assets.getItemMetaMap(ddragonPatch, params.lang).catch(() => ({}) as Record<string, ItemMeta>),
+      this.assets.getCdragonItemMetaMap(params.lang).catch(() => ({}) as Record<string, ItemMeta>),
+      this.assets
+        .getSummonerSpellMetaMap(ddragonPatch, params.lang)
+        .catch(() => ({}) as Record<number, SummonerSpellMeta>),
+    ])
+
+    const itemMetaMap: Record<string, ItemMeta> = { ...cdragonItemMetaMap, ...ddragonItemMetaMap }
+    const sourceKey = buildSourceKeyForMode('aram', { region, tier })
+
+    return transformOpggToAramBuild({
+      championId,
+      aram,
+      patch,
+      assetPatch: ddragonPatch,
+      dataSource: sourceKey,
+      itemMetaMap,
+      spellMetaMap,
+      _lang: params.lang,
+    })
   }
 
   async getArenaBuild(params: {
