@@ -7,6 +7,8 @@ import type {
   DDragonItemsResponse,
   DDragonSummonersResponse,
   ItemMeta,
+  PerkMeta,
+  PerkStyleMeta,
   SummonerSpellMeta,
 } from './types'
 
@@ -24,18 +26,51 @@ type CDragonItemRow = {
   iconPath?: string
 }
 
-function cdragonItemsMetaUrl(locale: 'en_US' | 'zh_CN' | 'zh_TW'): string {
-  // Items are available under:
-  // - global/default/v1/items.json (English)
-  // - global/zh_cn/v1/items.json (Simplified Chinese)
-  // - global/zh_tw/v1/items.json (Traditional Chinese)
+type CDragonSummonerSpellRow = {
+  id?: number
+  name?: string
+  iconPath?: string
+}
+
+type CDragonPerkRow = {
+  id?: number
+  name?: string
+  iconPath?: string
+}
+
+type CDragonPerkStylesResponse = {
+  styles?: Array<{
+    id?: number
+    name?: string
+    iconPath?: string
+  }>
+}
+
+function cdragonLocaleSegment(locale: 'en_US' | 'zh_CN' | 'zh_TW'): 'default' | 'zh_cn' | 'zh_tw' {
   const lowerLocale = locale.toLowerCase()
-  const cdLocale = lowerLocale.startsWith('zh_cn')
-    ? 'zh_cn'
-    : lowerLocale.startsWith('zh_tw')
-      ? 'zh_tw'
-      : 'default'
+  if (lowerLocale.startsWith('zh_cn')) return 'zh_cn'
+  if (lowerLocale.startsWith('zh_tw')) return 'zh_tw'
+  return 'default'
+}
+
+function cdragonItemsMetaUrl(locale: 'en_US' | 'zh_CN' | 'zh_TW'): string {
+  const cdLocale = cdragonLocaleSegment(locale)
   return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/${cdLocale}/v1/items.json`
+}
+
+function cdragonSummonerSpellsMetaUrl(locale: 'en_US' | 'zh_CN' | 'zh_TW'): string {
+  const cdLocale = cdragonLocaleSegment(locale)
+  return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/${cdLocale}/v1/summoner-spells.json`
+}
+
+function cdragonPerksMetaUrl(locale: 'en_US' | 'zh_CN' | 'zh_TW'): string {
+  const cdLocale = cdragonLocaleSegment(locale)
+  return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/${cdLocale}/v1/perks.json`
+}
+
+function cdragonPerkStylesMetaUrl(locale: 'en_US' | 'zh_CN' | 'zh_TW'): string {
+  const cdLocale = cdragonLocaleSegment(locale)
+  return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/${cdLocale}/v1/perkstyles.json`
 }
 
 function cdragonAssetUrl(pathValue?: string): string | undefined {
@@ -113,29 +148,106 @@ export class OPGGAssetsService {
     patch: string,
     lang?: RiotLocale,
   ): Promise<Record<number, SummonerSpellMeta>> {
-    if (!patch) return {}
     const locale = ddragonLocale(lang)
-    const cacheKey = `ddragon:summoner:${patch}:${locale}`
+    const cacheKey = `summoner-meta:${patch || 'latest'}:${locale}`
     const cached = this.getCached<Record<number, SummonerSpellMeta>>(cacheKey)
     if (cached) return cached
 
-    const url = `https://ddragon.leagueoflegends.com/cdn/${patch}/data/${locale}/summoner.json`
-    const json = await fetchJson<DDragonSummonersResponse>(url, { timeoutMs: 20_000 })
-    const map: Record<number, SummonerSpellMeta> = {}
+    const [ddragonMap, cdragonMap] = await Promise.all([
+      (async () => {
+        if (!patch) return {} as Record<number, SummonerSpellMeta>
+        const url = `https://ddragon.leagueoflegends.com/cdn/${patch}/data/${locale}/summoner.json`
+        const json = await fetchJson<DDragonSummonersResponse>(url, { timeoutMs: 20_000 })
+        const map: Record<number, SummonerSpellMeta> = {}
+        for (const data of Object.values(json.data ?? {})) {
+          const id = Number(data.key)
+          if (!Number.isFinite(id)) continue
+          map[id] = {
+            id,
+            name: data.name,
+            iconUrl: data.image?.full
+              ? `https://ddragon.leagueoflegends.com/cdn/${patch}/img/spell/${data.image.full}`
+              : undefined,
+          }
+        }
+        return map
+      })().catch(() => ({}) as Record<number, SummonerSpellMeta>),
+      this.getCdragonSummonerSpellMetaMap(lang).catch(() => ({}) as Record<number, SummonerSpellMeta>),
+    ])
 
-    for (const data of Object.values(json.data ?? {})) {
-      const id = Number(data.key)
-      if (!Number.isFinite(id)) continue
+    const map: Record<number, SummonerSpellMeta> = { ...cdragonMap, ...ddragonMap }
+
+    this.setCached(cacheKey, map, 60 * 60 * 1000)
+    return map
+  }
+
+  async getCdragonSummonerSpellMetaMap(lang?: RiotLocale): Promise<Record<number, SummonerSpellMeta>> {
+    const locale = normalizeLocale(lang)
+    const cacheKey = `cdragon:summoner:${locale}`
+    const cached = this.getCached<Record<number, SummonerSpellMeta>>(cacheKey)
+    if (cached) return cached
+
+    const rows = await fetchJson<CDragonSummonerSpellRow[]>(cdragonSummonerSpellsMetaUrl(locale), {
+      timeoutMs: 20_000,
+    })
+    const map: Record<number, SummonerSpellMeta> = {}
+    for (const row of rows ?? []) {
+      const id = typeof row?.id === 'number' && Number.isFinite(row.id) ? row.id : null
+      if (!id || id <= 0) continue
       map[id] = {
         id,
-        name: data.name,
-        iconUrl: data.image?.full
-          ? `https://ddragon.leagueoflegends.com/cdn/${patch}/img/spell/${data.image.full}`
-          : undefined,
+        name: row.name || undefined,
+        iconUrl: cdragonAssetUrl(row.iconPath),
       }
     }
 
-    this.setCached(cacheKey, map, 60 * 60 * 1000)
+    this.setCached(cacheKey, map, 12 * 60 * 60 * 1000)
+    return map
+  }
+
+  async getPerkMetaMap(lang?: RiotLocale): Promise<Record<number, PerkMeta>> {
+    const locale = normalizeLocale(lang)
+    const cacheKey = `cdragon:perks:${locale}`
+    const cached = this.getCached<Record<number, PerkMeta>>(cacheKey)
+    if (cached) return cached
+
+    const rows = await fetchJson<CDragonPerkRow[]>(cdragonPerksMetaUrl(locale), { timeoutMs: 20_000 })
+    const map: Record<number, PerkMeta> = {}
+    for (const row of rows ?? []) {
+      const id = typeof row?.id === 'number' && Number.isFinite(row.id) ? row.id : null
+      if (!id || id <= 0) continue
+      map[id] = {
+        id,
+        name: row.name || undefined,
+        iconUrl: cdragonAssetUrl(row.iconPath),
+      }
+    }
+
+    this.setCached(cacheKey, map, 12 * 60 * 60 * 1000)
+    return map
+  }
+
+  async getPerkStyleMetaMap(lang?: RiotLocale): Promise<Record<number, PerkStyleMeta>> {
+    const locale = normalizeLocale(lang)
+    const cacheKey = `cdragon:perkstyles:${locale}`
+    const cached = this.getCached<Record<number, PerkStyleMeta>>(cacheKey)
+    if (cached) return cached
+
+    const payload = await fetchJson<CDragonPerkStylesResponse>(cdragonPerkStylesMetaUrl(locale), {
+      timeoutMs: 20_000,
+    })
+    const map: Record<number, PerkStyleMeta> = {}
+    for (const row of payload.styles ?? []) {
+      const id = typeof row?.id === 'number' && Number.isFinite(row.id) ? row.id : null
+      if (!id || id <= 0) continue
+      map[id] = {
+        id,
+        name: row.name || undefined,
+        iconUrl: cdragonAssetUrl(row.iconPath),
+      }
+    }
+
+    this.setCached(cacheKey, map, 12 * 60 * 60 * 1000)
     return map
   }
 

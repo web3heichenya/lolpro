@@ -8,6 +8,7 @@ import { HeroBannerProfile } from '@/app/modes/components/HeroBannerProfile'
 import { HeroBasicsPanel } from '@/app/modes/components/HeroBasicsPanel'
 import { BuildItemsCard } from '@/app/modes/components/BuildItemsCard'
 import { BuildSkillsCard } from '@/app/modes/components/BuildSkillsCard'
+import { BuildSummonerSpellsCard } from '@/app/modes/components/BuildSummonerSpellsCard'
 import { BuildSynergiesCard } from '@/app/modes/components/BuildSynergiesCard'
 
 import { Badge } from '@/components/ui/badge'
@@ -136,6 +137,7 @@ export function AugmentModeDetailView({
               onToggleShowAllAugments={onToggleShowAllAugments}
             />
             <BuildItemsCard build={build} />
+            {build.mode === 'aram-mayhem' ? <BuildSummonerSpellsCard build={build} /> : null}
             <BuildSkillsCard build={build} />
             <BuildSynergiesCard build={build} champions={champions} />
             <HeroBasicsPanel profile={championProfile} />

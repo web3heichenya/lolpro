@@ -63,6 +63,10 @@ export function opggMetaLocale(locale?: RiotLocale): string {
   return normalizeLocale(locale)
 }
 
+export function asOptionalString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined
+}
+
 export function computeWinRate(play: number | null, win: number | null): number | null {
   if (play == null || win == null || play <= 0) return null
   return win / play

@@ -40,7 +40,9 @@ export function createAramMayhemProvider(services: {
       const missingSituational = (build.situationalItems?.length ?? 0) === 0
       const missingSkills =
         (build.skillMasteries?.length ?? 0) === 0 && (build.skillOrders?.length ?? 0) === 0
-      const looksLikeLegacyBrokenCache = missingCore || missingSituational || missingSkills
+      const missingSummonerSpells = source === 'blitz' && (build.summonerSpells?.length ?? 0) === 0
+      const looksLikeLegacyBrokenCache =
+        missingCore || missingSituational || missingSkills || missingSummonerSpells
       if (!looksLikeLegacyBrokenCache) return false
 
       return shouldRetrySelfHeal(build.dt)

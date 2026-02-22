@@ -7,6 +7,7 @@ import type { BlitzWebService } from '../services/blitz-web/service'
 import { createAramMayhemProvider } from './aram-mayhem/provider'
 import { createArenaProvider } from './arena/provider'
 import { createAramProvider } from './aram/provider'
+import { createRankedProvider } from './ranked/provider'
 
 export type BuildResolver = {
   getBuild: (params: {
@@ -21,10 +22,11 @@ export type BuildResolver = {
 }
 
 export function createBuildResolver(
-  opggService: Pick<OPGGService, 'getAramBuild' | 'getAramMayhemBuild' | 'getArenaBuild'>,
+  opggService: Pick<OPGGService, 'getRankedBuild' | 'getAramBuild' | 'getAramMayhemBuild' | 'getArenaBuild'>,
   blitzWebService: Pick<BlitzWebService, 'getAramMayhemBuild'>,
 ): BuildResolver {
   const providers: Record<GameModeId, BuildProvider> = {
+    ranked: createRankedProvider(opggService),
     aram: createAramProvider(opggService),
     'aram-mayhem': createAramMayhemProvider({ opggService, blitzWebService }),
     arena: createArenaProvider(opggService),

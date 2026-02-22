@@ -21,6 +21,7 @@ function skillChipClass(token: string): string {
 
 export function BuildSkillsCard({ build }: Props) {
   const { t } = useI18n()
+
   return (
     <Card className="detail-surface overflow-hidden rounded-3xl">
       <CardContent className="space-y-4 p-4 pt-4">

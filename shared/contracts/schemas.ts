@@ -244,8 +244,24 @@ export const runeRecommendationSchema = z.object({
   subStyleId: z.number().int(),
   selectedPerkIds: z.array(z.number().int()),
   pickRate: z.number().nullable(),
+  winRate: z.number().nullable().optional(),
+  games: z.number().nullable().optional(),
+  primaryStyleName: z.string().optional(),
+  subStyleName: z.string().optional(),
   primaryStyleIconUrl: z.string().optional(),
   subStyleIconUrl: z.string().optional(),
+  primaryPerkIds: z.array(z.number().int()).optional(),
+  secondaryPerkIds: z.array(z.number().int()).optional(),
+  statModIds: z.array(z.number().int()).optional(),
+  primaryPerks: z
+    .array(z.object({ id: z.number().int(), name: z.string().optional(), iconUrl: z.string().optional() }))
+    .optional(),
+  secondaryPerks: z
+    .array(z.object({ id: z.number().int(), name: z.string().optional(), iconUrl: z.string().optional() }))
+    .optional(),
+  statMods: z
+    .array(z.object({ id: z.number().int(), name: z.string().optional(), iconUrl: z.string().optional() }))
+    .optional(),
 })
 
 export const summonerSpellRecommendationSchema = z.object({

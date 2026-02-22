@@ -2,17 +2,17 @@ import type { BuildProvider } from '../types'
 import type { OPGGService } from '../../services/opgg/service'
 import { shouldRetrySelfHeal } from '../cacheRefresh'
 
-export function createAramProvider(opggService: Pick<OPGGService, 'getAramBuild'>): BuildProvider {
+export function createRankedProvider(opggService: Pick<OPGGService, 'getRankedBuild'>): BuildProvider {
   return {
-    modeId: 'aram',
+    modeId: 'ranked',
 
     async getBuild({ championId, championKey, lang, region, tier }) {
       void championKey
-      return await opggService.getAramBuild({ championId, lang, region, tier })
+      return await opggService.getRankedBuild({ championId, lang, region, tier })
     },
 
     shouldRefreshCachedBuild(build) {
-      if (build.mode !== 'aram') return false
+      if (build.mode !== 'ranked') return false
 
       const compactPatch = /^\d+\.\d{2}$/.test(build.patch)
       const itemMap = new Map((build.items ?? []).map((item) => [String(item.itemId), item]))

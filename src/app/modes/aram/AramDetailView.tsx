@@ -6,7 +6,9 @@ import { useI18n } from '@/app/i18n'
 import { HeroBannerProfile } from '@/app/modes/components/HeroBannerProfile'
 import { HeroBasicsPanel } from '@/app/modes/components/HeroBasicsPanel'
 import { BuildItemsCard } from '@/app/modes/components/BuildItemsCard'
+import { BuildRunesCard } from '@/app/modes/components/BuildRunesCard'
 import { BuildSkillsCard } from '@/app/modes/components/BuildSkillsCard'
+import { BuildSummonerSpellsCard } from '@/app/modes/components/BuildSummonerSpellsCard'
 import { BuildSynergiesCard } from '@/app/modes/components/BuildSynergiesCard'
 
 import { Badge } from '@/components/ui/badge'
@@ -118,6 +120,12 @@ export function AramDetailView({
           <div className="space-y-6">
             <BuildItemsCard build={build} />
             <BuildSkillsCard build={build} />
+            {build.mode === 'aram' || build.mode === 'ranked' ? (
+              <>
+                <BuildSummonerSpellsCard build={build} />
+                <BuildRunesCard build={build} />
+              </>
+            ) : null}
             <BuildSynergiesCard build={build} champions={champions} />
             <HeroBasicsPanel profile={championProfile} />
           </div>
