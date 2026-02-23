@@ -2,6 +2,8 @@ import { BrowserWindow } from 'electron'
 
 import { IPC_CHANNELS, type EventChannel, type EventPayload } from '../../../shared/ipc'
 import type { MainProcessDependencies } from '../bootstrap/dependencies'
+import type { AppRuntime } from '../services/appRuntime'
+import type { MainServices } from '../services'
 
 function broadcast<TChannel extends EventChannel>(channel: TChannel, payload: EventPayload<TChannel>) {
   for (const win of BrowserWindow.getAllWindows()) {
@@ -11,6 +13,8 @@ function broadcast<TChannel extends EventChannel>(channel: TChannel, payload: Ev
 
 export function registerMainToRendererEvents(
   dependencies: Pick<MainProcessDependencies, 'settingsStore' | 'gameContext'>,
+  services: Pick<MainServices, 'updateService'>,
+  runtime: Pick<AppRuntime, 'getMainWindow'>,
 ) {
   const onGameContextChanged = () => {
     const snapshot = dependencies.gameContext.getSnapshot()
@@ -30,15 +34,23 @@ export function registerMainToRendererEvents(
     broadcast(IPC_CHANNELS.event.settingsChanged, dependencies.settingsStore.get())
   }
 
+  const onUpdateStatusChanged = () => {
+    const mainWindow = runtime.getMainWindow()
+    if (!mainWindow || mainWindow.isDestroyed()) return
+    mainWindow.webContents.send(IPC_CHANNELS.event.updateStatusChanged, services.updateService.getStatus())
+  }
+
   dependencies.gameContext.on('changed', onGameContextChanged)
   dependencies.gameContext.on('detectedChampionChanged', onDetectedChampionChanged)
   dependencies.gameContext.on('activeBuildChanged', onActiveBuildChanged)
   dependencies.settingsStore.on('changed', onSettingsChanged)
+  const offUpdater = services.updateService.onStatusChanged(onUpdateStatusChanged)
 
   return () => {
     dependencies.gameContext.off('changed', onGameContextChanged)
     dependencies.gameContext.off('detectedChampionChanged', onDetectedChampionChanged)
     dependencies.gameContext.off('activeBuildChanged', onActiveBuildChanged)
     dependencies.settingsStore.off('changed', onSettingsChanged)
+    offUpdater()
   }
 }

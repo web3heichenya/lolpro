@@ -118,6 +118,32 @@ export function useMainActions({
     [api],
   )
 
+  const onCheckAppUpdate = useCallback(async () => {
+    try {
+      const next = await api.checkForAppUpdates()
+      await mutate(swrKeys.updateStatusKey, next, { revalidate: false })
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+    }
+  }, [api, mutate, setError])
+
+  const onDownloadAppUpdate = useCallback(async () => {
+    try {
+      const next = await api.downloadAppUpdate()
+      await mutate(swrKeys.updateStatusKey, next, { revalidate: false })
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+    }
+  }, [api, mutate, setError])
+
+  const onInstallAppUpdate = useCallback(async () => {
+    try {
+      await api.installAppUpdate()
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+    }
+  }, [api, setError])
+
   return {
     refreshingBuild,
     onRefreshBuild,
@@ -128,5 +154,8 @@ export function useMainActions({
     onToggleOverlayPinned,
     onLoadPlayerCareer,
     onLoadSummonerByPuuid,
+    onCheckAppUpdate,
+    onDownloadAppUpdate,
+    onInstallAppUpdate,
   }
 }

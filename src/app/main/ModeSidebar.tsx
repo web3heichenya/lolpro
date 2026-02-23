@@ -3,7 +3,7 @@ import { Gamepad2, Gem, RefreshCw, Shield, Snowflake, Swords, type LucideIcon } 
 
 import { DEFAULT_GAME_MODE, type GameModeId } from '@shared/gameModes'
 
-import type { GameContext, Settings, SettingsPatch, SupportedMode } from '@/app/types'
+import type { AppUpdateStatus, GameContext, Settings, SettingsPatch, SupportedMode } from '@/app/types'
 import type { MainPanel } from '@/app/store/useAppStore'
 import { useI18n } from '@/app/i18n'
 import { SettingsSheet } from '@/app/main/SettingsSheet'
@@ -51,6 +51,10 @@ type Props = {
   onApplySettingsPatch: (patch: SettingsPatch) => Promise<void>
   onClearCacheForMode: (mode: GameModeId) => Promise<void>
   onResetSettings: () => Promise<void>
+  appUpdateStatus: AppUpdateStatus | null
+  onCheckAppUpdate: () => Promise<void>
+  onDownloadAppUpdate: () => Promise<void>
+  onInstallAppUpdate: () => Promise<void>
 }
 
 function profileIconUrl(profileIconId: number | undefined) {
@@ -73,6 +77,10 @@ export function ModeSidebar({
   onApplySettingsPatch,
   onClearCacheForMode,
   onResetSettings,
+  appUpdateStatus,
+  onCheckAppUpdate,
+  onDownloadAppUpdate,
+  onInstallAppUpdate,
 }: Props) {
   const { t } = useI18n()
   const [refreshingStatus, setRefreshingStatus] = useState(false)
@@ -236,6 +244,10 @@ export function ModeSidebar({
               onApplySettingsPatch={onApplySettingsPatch}
               onClearCacheForMode={onClearCacheForMode}
               onResetSettings={onResetSettings}
+              appUpdateStatus={appUpdateStatus}
+              onCheckAppUpdate={onCheckAppUpdate}
+              onDownloadAppUpdate={onDownloadAppUpdate}
+              onInstallAppUpdate={onInstallAppUpdate}
             />
           </div>
         </div>

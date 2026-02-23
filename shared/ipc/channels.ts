@@ -20,6 +20,10 @@ export const IPC_CHANNELS = {
 
     systemGetAccessibilityStatus: 'system:getAccessibilityStatus',
     systemOpenAccessibilitySettings: 'system:openAccessibilitySettings',
+    updateGetStatus: 'update:getStatus',
+    updateCheck: 'update:check',
+    updateDownload: 'update:download',
+    updateInstall: 'update:install',
 
     overlayToggle: 'overlay:toggle',
     overlaySetVisible: 'overlay:setVisible',
@@ -35,5 +39,6 @@ export const IPC_CHANNELS = {
     gameActiveBuildChanged: 'game:activeBuild:changed',
     gameContextChanged: 'game:context:changed',
     settingsChanged: 'settings:changed',
+    updateStatusChanged: 'update:status:changed',
   },
 } as const

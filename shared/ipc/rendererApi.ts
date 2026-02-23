@@ -1,5 +1,6 @@
 import type {
   AccessibilityStatus,
+  AppUpdateStatus,
   BuildResult,
   ChampionProfile,
   ChampionSummary,
@@ -58,6 +59,11 @@ export type MainRendererApi = BaseRendererApi & {
 
   updateSettings: (patch: SettingsPatch) => Promise<Settings>
   resetSettings: () => Promise<Settings>
+  getAppUpdateStatus: () => Promise<AppUpdateStatus>
+  checkForAppUpdates: () => Promise<AppUpdateStatus>
+  downloadAppUpdate: () => Promise<AppUpdateStatus>
+  installAppUpdate: () => Promise<void>
+  onAppUpdateStatusChanged: (cb: (status: AppUpdateStatus) => void) => Unsubscribe
 
   toggleOverlay: () => Promise<void>
   setOverlayVisible: (visible: boolean) => Promise<void>

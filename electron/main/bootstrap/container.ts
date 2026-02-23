@@ -46,7 +46,7 @@ export function createContainer() {
     await runtime.start()
 
     if (!disposeEventBridge) {
-      disposeEventBridge = registerMainToRendererEvents(dependencies)
+      disposeEventBridge = registerMainToRendererEvents(dependencies, services, runtime)
     }
   }
 

@@ -64,7 +64,7 @@ async function buildAll({ watchMode }) {
     outExtension: { '.js': '.cjs' },
     logLevel: 'info',
     // Keep native deps external so electron-builder can ship them as-is.
-    external: ['electron', 'better-sqlite3'],
+    external: ['electron', 'better-sqlite3', 'electron-updater'],
     define: {
       'process.env.NODE_ENV': JSON.stringify(watchMode ? 'development' : 'production'),
     },

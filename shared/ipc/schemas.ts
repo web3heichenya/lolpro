@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import {
   accessibilityStatusSchema,
+  appUpdateStatusSchema,
   buildResultSchema,
   championProfileSchema,
   championSummarySchema,
@@ -99,6 +100,23 @@ export const invokeChannelSchemas = {
     output: emptyResponseSchema,
   },
 
+  [IPC_CHANNELS.invoke.updateGetStatus]: {
+    input: noInputSchema,
+    output: appUpdateStatusSchema,
+  },
+  [IPC_CHANNELS.invoke.updateCheck]: {
+    input: noInputSchema,
+    output: appUpdateStatusSchema,
+  },
+  [IPC_CHANNELS.invoke.updateDownload]: {
+    input: noInputSchema,
+    output: appUpdateStatusSchema,
+  },
+  [IPC_CHANNELS.invoke.updateInstall]: {
+    input: noInputSchema,
+    output: emptyResponseSchema,
+  },
+
   [IPC_CHANNELS.invoke.overlayToggle]: {
     input: noInputSchema,
     output: emptyResponseSchema,
@@ -132,4 +150,5 @@ export const eventPayloadSchemas = {
   [IPC_CHANNELS.event.gameActiveBuildChanged]: buildResultSchema.nullable(),
   [IPC_CHANNELS.event.gameContextChanged]: gameContextSchema,
   [IPC_CHANNELS.event.settingsChanged]: settingsSchema,
+  [IPC_CHANNELS.event.updateStatusChanged]: appUpdateStatusSchema,
 } as const

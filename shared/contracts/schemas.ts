@@ -63,6 +63,37 @@ export const supportedModeSchema = z.object({
   features: z.array(z.string()),
 })
 
+export const appUpdateStatusStageSchema = z.enum([
+  'disabled',
+  'idle',
+  'checking',
+  'available',
+  'not-available',
+  'downloading',
+  'downloaded',
+  'error',
+])
+
+export const appUpdateProgressSchema = z.object({
+  percent: z.number(),
+  transferred: z.number().nonnegative(),
+  total: z.number().nonnegative(),
+  bytesPerSecond: z.number().nonnegative(),
+})
+
+export const appUpdateStatusSchema = z.object({
+  stage: appUpdateStatusStageSchema,
+  currentVersion: z.string(),
+  latestVersion: z.string().optional(),
+  releaseName: z.string().optional(),
+  releaseDate: z.string().optional(),
+  message: z.string().optional(),
+  progress: appUpdateProgressSchema.optional(),
+  canCheck: z.boolean(),
+  canDownload: z.boolean(),
+  canInstall: z.boolean(),
+})
+
 export const settingsSchema = z.object({
   version: z.literal(1),
   language: languageSettingSchema,

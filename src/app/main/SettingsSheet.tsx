@@ -10,9 +10,10 @@ import {
   type OpggRegion,
 } from '@shared/opgg'
 
-import type { Settings, SettingsPatch, SupportedMode } from '@/app/types'
+import type { AppUpdateStatus, Settings, SettingsPatch, SupportedMode } from '@/app/types'
 import { useI18n } from '@/app/i18n'
 import { getHotkeyRows } from '@/app/main/hotkeyRows'
+import { UpdateSection } from '@/app/main/UpdateSection'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -30,6 +31,10 @@ type Props = {
   onApplySettingsPatch: (patch: SettingsPatch) => Promise<void>
   onClearCacheForMode: (mode: GameModeId) => Promise<void>
   onResetSettings: () => Promise<void>
+  appUpdateStatus: AppUpdateStatus | null
+  onCheckAppUpdate: () => Promise<void>
+  onDownloadAppUpdate: () => Promise<void>
+  onInstallAppUpdate: () => Promise<void>
 }
 
 export function SettingsSheet({
@@ -39,6 +44,10 @@ export function SettingsSheet({
   onApplySettingsPatch,
   onClearCacheForMode,
   onResetSettings,
+  appUpdateStatus,
+  onCheckAppUpdate,
+  onDownloadAppUpdate,
+  onInstallAppUpdate,
 }: Props) {
   const { t } = useI18n()
   const selectedRegion = settings?.dataSource.opgg.region ?? DEFAULT_OPGG_REGION
@@ -281,6 +290,15 @@ export function SettingsSheet({
                   })}
                 </div>
               </div>
+
+              <Separator />
+
+              <UpdateSection
+                appUpdateStatus={appUpdateStatus}
+                onCheckAppUpdate={onCheckAppUpdate}
+                onDownloadAppUpdate={onDownloadAppUpdate}
+                onInstallAppUpdate={onInstallAppUpdate}
+              />
 
               <Separator />
 
