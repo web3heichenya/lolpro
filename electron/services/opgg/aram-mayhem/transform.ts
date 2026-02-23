@@ -3,7 +3,6 @@ import type {
   ItemRecommendation,
   RiotLocale,
   StartingItemsRecommendation,
-  SummonerSpellRecommendation,
 } from '../../../../shared/contracts'
 import {
   asArray,
@@ -14,9 +13,18 @@ import {
   raritySortWeight,
   toInt,
   toNum,
-  toSkillId,
 } from '../helpers'
-import type { CDragonAugment, ItemMeta, OpggChampionBuildResponse, SummonerSpellMeta } from '../types'
+import { resolveOpggBuildSummary } from './summary'
+import { parseOpggRunes } from './runes'
+import { parseSkillMasteries, parseSkillOrders, parseSummonerSpells } from './setup'
+import type {
+  CDragonAugment,
+  ItemMeta,
+  OpggChampionBuildResponse,
+  PerkMeta,
+  PerkStyleMeta,
+  SummonerSpellMeta,
+} from '../types'
 
 type TransformInput = {
   championId: number
@@ -26,42 +34,24 @@ type TransformInput = {
   dataSource?: string
   itemMetaMap: Record<string, ItemMeta>
   spellMetaMap: Record<number, SummonerSpellMeta>
+  perkMetaMap?: Record<number, PerkMeta>
+  perkStyleMetaMap?: Record<number, PerkStyleMeta>
   augmentMetaMap: Map<number, CDragonAugment>
   _lang?: RiotLocale
 }
 
-function resolveArenaSummary(arena: OpggChampionBuildResponse) {
-  const arenaData = arena.data || {}
-  const averageStats = arenaData.summary?.average_stats
-
-  const play = toNum(averageStats?.play)
-  const win = toNum(averageStats?.win)
-  const kills = toNum(averageStats?.kills)
-  const assists = toNum(averageStats?.assists)
-  const deaths = toNum(averageStats?.deaths)
-
-  const kdaFromAverage = toNum(averageStats?.kda)
-  const kdaFromKdaParts =
-    kills != null && assists != null && deaths != null
-      ? deaths > 0
-        ? (kills + assists) / deaths
-        : kills + assists
-      : null
-
-  return {
-    winRate: toNum(averageStats?.win_rate) ?? computeWinRate(play, win),
-    pickRate: toNum(averageStats?.pick_rate),
-    banRate: toNum(averageStats?.ban_rate),
-    kda: kdaFromAverage ?? kdaFromKdaParts,
-    tier: toNum(averageStats?.tier_data?.tier) ?? toNum(averageStats?.tier),
-    rank: toNum(averageStats?.tier_data?.rank) ?? toNum(averageStats?.rank),
-    averagePlace: play != null && play > 0 ? (toNum(averageStats?.total_place) ?? 0) / play : null,
-    firstRate: computeWinRate(play, toNum(averageStats?.first_place)),
-  }
-}
-
 export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhemBuildResult {
-  const { championId, arena, assetPatch, dataSource, itemMetaMap, spellMetaMap, augmentMetaMap } = input
+  const {
+    championId,
+    arena,
+    assetPatch,
+    dataSource,
+    itemMetaMap,
+    spellMetaMap,
+    perkMetaMap,
+    perkStyleMetaMap,
+    augmentMetaMap,
+  } = input
 
   const arenaData = arena.data || {}
   const positionData = asArray(arenaData.positions).find(
@@ -69,74 +59,28 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
   )
   const resolvedPosition = positionData || asArray(arenaData.positions)[0]
 
-  const summary = resolveArenaSummary(arena)
+  const summary = resolveOpggBuildSummary(arena)
 
-  const summonerSpellsSource = asArray(resolvedPosition?.summoner_spells).length
-    ? asArray(resolvedPosition?.summoner_spells)
-    : asArray(arenaData.summoner_spells)
-  const summonerSpells: SummonerSpellRecommendation[] = summonerSpellsSource
-    .reduce<SummonerSpellRecommendation[]>((acc, row) => {
-      const ids = asArray(row.ids)
-        .map((id) => toInt(id))
-        .filter((id): id is number => id != null)
-      if (!ids.length) return acc
-      const games = toNum(row.play)
-      const wins = toNum(row.win)
-      const pickRate = toNum(row.pick_rate)
-      acc.push({
-        summonerSpellIds: ids,
-        games,
-        pickRate,
-        winRate: computeWinRate(games, wins),
-        spells: ids.map((id) => ({
-          id,
-          name: spellMetaMap[id]?.name,
-          iconUrl: spellMetaMap[id]?.iconUrl,
-        })),
-      })
-      return acc
-    }, [])
-    .sort((a, b) => (b.pickRate ?? -1) - (a.pickRate ?? -1))
-    .slice(0, 6)
+  const summonerSpells = parseSummonerSpells({
+    resolvedPosition,
+    arenaData: arenaData as Record<string, unknown>,
+    spellMetaMap,
+  })
+  const skillOrders = parseSkillOrders({
+    resolvedPosition,
+    arenaData: arenaData as Record<string, unknown>,
+  })
+  const skillMasteries = parseSkillMasteries({
+    resolvedPosition,
+    arenaData: arenaData as Record<string, unknown>,
+  })
 
-  const skillOrders = (
-    asArray(resolvedPosition?.skills).length ? asArray(resolvedPosition?.skills) : asArray(arenaData.skills)
-  )
-    .map((skill) => {
-      const skillOrder = asArray(skill.order)
-        .map((value) => toSkillId(value))
-        .filter((value): value is number => value != null)
-      if (!skillOrder.length) return null
-      const games = toNum(skill.play)
-      const wins = toNum(skill.win)
-      return {
-        skillOrder,
-        games,
-        pickRate: toNum(skill.pick_rate),
-        winRate: computeWinRate(games, wins),
-      }
-    })
-    .filter((row): row is NonNullable<typeof row> => !!row)
-    .sort((a, b) => (b.pickRate ?? -1) - (a.pickRate ?? -1))
-    .slice(0, 6)
-
-  const skillMasteries = (
-    asArray(resolvedPosition?.skill_masteries).length
-      ? asArray(resolvedPosition?.skill_masteries)
-      : asArray(arenaData.skill_masteries)
-  )
-    .map((mastery) => {
-      const games = toNum(mastery.play)
-      const wins = toNum(mastery.win)
-      return {
-        order: asArray(mastery.ids).map((token) => String(token)),
-        pickRate: toNum(mastery.pick_rate),
-        winRate: computeWinRate(games, wins),
-      }
-    })
-    .filter((mastery) => mastery.order.length > 0)
-    .sort((a, b) => (b.pickRate ?? -1) - (a.pickRate ?? -1))
-    .slice(0, 6)
+  const runes = parseOpggRunes({
+    resolvedPosition,
+    arenaData: arenaData as Record<string, unknown>,
+    perkMetaMap: perkMetaMap ?? {},
+    perkStyleMetaMap: perkStyleMetaMap ?? {},
+  })
 
   const starterItems = (
     asArray(resolvedPosition?.starter_items).length
@@ -166,15 +110,30 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
     .sort((a, b) => (b.pickRate ?? -1) - (a.pickRate ?? -1))
     .slice(0, 8)
 
-  const situationalItems = (
+  const situationalItemRows = (
     asArray(resolvedPosition?.last_items).length
       ? asArray(resolvedPosition?.last_items)
       : asArray(arenaData.last_items)
   )
-    .flatMap((combo) => asArray(combo.ids))
-    .map((id) => toInt(id))
-    .filter((id): id is number => id != null)
+    .map((combo) => {
+      const itemIds = asArray(combo.ids)
+        .map((id) => toInt(id))
+        .filter((id): id is number => id != null)
+      if (!itemIds.length) return null
+      const games = toNum(combo.play)
+      const wins = toNum(combo.win)
+      return {
+        itemIds,
+        games,
+        pickRate: toNum(combo.pick_rate),
+        winRate: computeWinRate(games, wins),
+      }
+    })
+    .filter((row): row is NonNullable<typeof row> => !!row)
+    .sort((a, b) => (b.pickRate ?? -1) - (a.pickRate ?? -1))
     .slice(0, 18)
+
+  const situationalItems = situationalItemRows.flatMap((row) => row.itemIds).slice(0, 18)
 
   const flatItemMap = new Map<string, ItemRecommendation>()
   const pushFlatItem = (
@@ -221,7 +180,15 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
   starterItems.forEach((combo, idx) => combo.itemIds.forEach((id) => pushFlatItem(id, combo, idx + 1)))
   coreItems.forEach((combo, idx) => combo.itemIds.forEach((id) => pushFlatItem(id, combo, idx + 1)))
   bootsItems.forEach((combo, idx) => combo.itemIds.forEach((id) => pushFlatItem(id, combo, idx + 1)))
-  situationalItems.forEach((id, idx) => pushFlatItem(id, undefined, 100 + idx))
+  situationalItemRows.forEach((combo, idx) => {
+    const source: StartingItemsRecommendation = {
+      itemIds: combo.itemIds,
+      games: combo.games ?? null,
+      pickRate: combo.pickRate ?? null,
+      winRate: combo.winRate ?? null,
+    }
+    combo.itemIds.forEach((id) => pushFlatItem(id, source, 100 + idx))
+  })
 
   const items = Array.from(flatItemMap.values()).sort(
     (a, b) => (a.tier ?? 999) - (b.tier ?? 999) || (b.pickRate ?? -1) - (a.pickRate ?? -1),
@@ -305,6 +272,7 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
     summary,
     augments,
     items,
+    ...(runes.length ? { runes } : {}),
     ...(summonerSpells.length ? { summonerSpells } : {}),
     ...(skillOrders.length ? { skillOrders } : {}),
     ...(skillMasteries.length ? { skillMasteries } : {}),

@@ -17,6 +17,7 @@ export const champions = sqliteTable('champions', {
   id: text('id').notNull(),
   lang: text('lang').notNull(),
   name: text('name').notNull(),
+  title: text('title'),
   slug: text('slug').notNull(),
   iconUrl: text('icon_url'),
   splashUrl: text('splash_url'),

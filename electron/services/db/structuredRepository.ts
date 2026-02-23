@@ -70,9 +70,12 @@ export class StructuredRepository {
 
     const rows = raw
       .prepare(
-        'SELECT id, name, slug, icon_url as iconUrl, splash_url as splashUrl FROM champions WHERE lang = ? ORDER BY name COLLATE NOCASE ASC',
+        'SELECT id, name, title, slug, icon_url as iconUrl, splash_url as splashUrl FROM champions WHERE lang = ? ORDER BY name COLLATE NOCASE ASC',
       )
       .all(lang) as ChampionSummary[]
+
+    // Self-heal stale champion cache from legacy schema rows without localized title.
+    if (rows.some((row) => !row.title)) return null
 
     return rows.length ? rows : null
   }
@@ -82,14 +85,23 @@ export class StructuredRepository {
     const now = Date.now()
     const clearStmt = raw.prepare('DELETE FROM champions WHERE lang = ?')
     const insertStmt = raw.prepare(`
-      INSERT INTO champions (id, lang, name, slug, icon_url, splash_url, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO champions (id, lang, name, title, slug, icon_url, splash_url, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `)
 
     const tx = raw.transaction((rows: ChampionSummary[]) => {
       clearStmt.run(lang)
       for (const row of rows) {
-        insertStmt.run(row.id, lang, row.name, row.slug, row.iconUrl ?? null, row.splashUrl ?? null, now)
+        insertStmt.run(
+          row.id,
+          lang,
+          row.name,
+          row.title ?? null,
+          row.slug,
+          row.iconUrl ?? null,
+          row.splashUrl ?? null,
+          now,
+        )
       }
     })
     tx(champions)

@@ -129,7 +129,7 @@ export function parseSummonerSpells(
 
   for (const entry of asArray(value)) {
     const record = asRecord(entry)
-    const spellIds = parseItemIds(record.summonerSpellIds)
+    const spellIds = parseItemIds(record.summonerSpellIds ?? record.summoner_spell_ids)
     if (!spellIds.length) continue
 
     const games = toNum(record.games)
@@ -137,7 +137,7 @@ export function parseSummonerSpells(
     rows.push({
       summonerSpellIds: spellIds,
       games,
-      pickRate: toNum(record.pick_rate),
+      pickRate: toNum(record.pick_rate ?? record.pickRate),
       winRate: computeWinRate(games, wins),
       spells: spellIds.map((id) => ({
         id,

@@ -3,6 +3,7 @@ import type { BuildResult, Settings } from '@/app/types'
 import { AramOverlayContent } from './AramOverlayContent'
 import { ArenaOverlayContent } from './ArenaOverlayContent'
 import { AramMayhemOverlayContent } from './AramMayhemOverlayContent'
+import { RankedOverlayContent } from './RankedOverlayContent'
 
 export function ModeOverlayContent({
   build,
@@ -16,6 +17,9 @@ export function ModeOverlayContent({
   }
   if (build.mode === 'aram') {
     return <AramOverlayContent build={build} />
+  }
+  if (build.mode === 'ranked') {
+    return <RankedOverlayContent build={build} />
   }
   if (build.mode === 'aram-mayhem') {
     return <AramMayhemOverlayContent build={build} selectedAugmentRarity={selectedAugmentRarity} />

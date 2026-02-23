@@ -152,7 +152,7 @@ export const ChampionListPanel = memo(function ChampionListPanel({
                     </Avatar>
                     <div className="min-w-0 flex-1 text-left">
                       <div className="truncate text-base font-semibold">{c.name}</div>
-                      <div className="truncate text-xs text-muted-foreground">{c.slug}</div>
+                      <div className="truncate text-xs text-muted-foreground">{c.title ?? c.slug}</div>
                     </div>
                     <Badge variant="secondary" className="rounded-full text-[10px]">
                       #{c.id}

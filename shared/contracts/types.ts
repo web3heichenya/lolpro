@@ -11,6 +11,7 @@ export type OverlayAugmentRarity = 'prismatic' | 'gold' | 'silver'
 export interface ChampionSummary {
   id: string
   name: string
+  title?: string
   slug: string
   iconUrl?: string
   splashUrl?: string
@@ -81,8 +82,18 @@ export type RuneRecommendation = {
   subStyleId: number
   selectedPerkIds: number[]
   pickRate: number | null
+  winRate?: number | null
+  games?: number | null
+  primaryStyleName?: string
+  subStyleName?: string
   primaryStyleIconUrl?: string
   subStyleIconUrl?: string
+  primaryPerkIds?: number[]
+  secondaryPerkIds?: number[]
+  statModIds?: number[]
+  primaryPerks?: Array<{ id: number; name?: string; iconUrl?: string }>
+  secondaryPerks?: Array<{ id: number; name?: string; iconUrl?: string }>
+  statMods?: Array<{ id: number; name?: string; iconUrl?: string }>
 }
 
 export type SummonerSpellRecommendation = {
@@ -189,6 +200,28 @@ export interface AramBuildResult extends BuildResultBase {
   synergies?: SynergyRecommendation[]
 }
 
+export interface RankedBuildResult extends BuildResultBase {
+  mode: 'ranked'
+  dataSource?: string
+  position?: string
+  summary?: BuildSummary
+  augments: AugmentRecommendation[]
+  items: ItemRecommendation[]
+  runes?: RuneRecommendation[]
+  summonerSpells?: SummonerSpellRecommendation[]
+  skillOrders?: SkillOrderRecommendation[]
+  skillMasteries?: SkillMasteryRecommendation[]
+  startingItems?: StartingItemsRecommendation[]
+  coreItems?: StartingItemsRecommendation[]
+  bootsItems?: StartingItemsRecommendation[]
+  situationalItems?: number[]
+  counters?: {
+    strongAgainst: CounterRecommendation[]
+    weakAgainst: CounterRecommendation[]
+  }
+  synergies?: SynergyRecommendation[]
+}
+
 export interface ArenaBuildResult extends BuildResultBase {
   mode: 'arena'
   dataSource?: string
@@ -213,7 +246,7 @@ export interface ArenaBuildResult extends BuildResultBase {
   synergies?: SynergyRecommendation[]
 }
 
-export type BuildResult = AramBuildResult | AramMayhemBuildResult | ArenaBuildResult
+export type BuildResult = RankedBuildResult | AramBuildResult | AramMayhemBuildResult | ArenaBuildResult
 
 export interface LcuStatus {
   connected: boolean

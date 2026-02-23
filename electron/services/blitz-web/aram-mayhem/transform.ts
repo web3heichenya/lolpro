@@ -179,7 +179,11 @@ export async function transformBlitzAramMayhem(params: TransformParams): Promise
         raritySortWeight(a.rarity) - raritySortWeight(b.rarity) || (b.pickRate ?? -1) - (a.pickRate ?? -1),
     )
 
-  const summonerSpells = parseSummonerSpells(selectedBuild?.summonerSpells, spellMetaMap)
+  const selectedBuildRecord = asRecord(selectedBuild)
+  const summonerSpells = parseSummonerSpells(
+    selectedBuildRecord.summonerSpells ?? selectedBuildRecord.summoner_spells,
+    spellMetaMap,
+  )
   const skillOrders = parseSkillOrders(selectedBuild?.skillOrders)
   const skillMasteries = parseSkillMasteries(skillOrders)
 

@@ -228,3 +228,15 @@ export type SummonerSpellMeta = {
   name?: string
   iconUrl?: string
 }
+
+export type PerkMeta = {
+  id: number
+  name?: string
+  iconUrl?: string
+}
+
+export type PerkStyleMeta = {
+  id: number
+  name?: string
+  iconUrl?: string
+}

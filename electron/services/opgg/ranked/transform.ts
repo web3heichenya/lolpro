@@ -1,4 +1,4 @@
-import type { AramBuildResult, RiotLocale } from '../../../../shared/contracts'
+import type { RankedBuildResult, RiotLocale } from '../../../../shared/contracts'
 import type {
   ItemMeta,
   OpggChampionBuildResponse,
@@ -6,11 +6,13 @@ import type {
   PerkStyleMeta,
   SummonerSpellMeta,
 } from '../types'
-import { transformOpggToAramMayhemBuild } from '../aram-mayhem/transform'
+import { transformOpggToAramBuild } from '../aram/transform'
+
+type RankedPosition = 'top' | 'jungle' | 'mid' | 'adc' | 'support'
 
 type TransformInput = {
   championId: number
-  aram: OpggChampionBuildResponse
+  ranked: OpggChampionBuildResponse
   patch: string
   assetPatch: string
   dataSource?: string
@@ -18,13 +20,14 @@ type TransformInput = {
   spellMetaMap: Record<number, SummonerSpellMeta>
   perkMetaMap?: Record<number, PerkMeta>
   perkStyleMetaMap?: Record<number, PerkStyleMeta>
+  position: RankedPosition
   _lang?: RiotLocale
 }
 
-export function transformOpggToAramBuild(input: TransformInput): AramBuildResult {
-  const base = transformOpggToAramMayhemBuild({
+export function transformOpggToRankedBuild(input: TransformInput): RankedBuildResult {
+  const base = transformOpggToAramBuild({
     championId: input.championId,
-    arena: input.aram,
+    aram: input.ranked,
     patch: input.patch,
     assetPatch: input.assetPatch,
     dataSource: input.dataSource,
@@ -32,14 +35,12 @@ export function transformOpggToAramBuild(input: TransformInput): AramBuildResult
     spellMetaMap: input.spellMetaMap,
     perkMetaMap: input.perkMetaMap,
     perkStyleMetaMap: input.perkStyleMetaMap,
-    augmentMetaMap: new Map(),
     _lang: input._lang,
   })
 
-  // ARAM has no augment system. Keep the rest of the transformed payload.
   return {
     ...base,
-    mode: 'aram',
-    augments: [],
+    mode: 'ranked',
+    position: input.position,
   }
 }

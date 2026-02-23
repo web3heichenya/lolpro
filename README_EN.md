@@ -6,6 +6,7 @@
 
 A League of Legends assistant tool based on Electron + React. Currently supports:
 
+- Ranked (`ranked`)
 - ARAM (`aram`)
 - ARAM Mayhem (`aram-mayhem`)
 - Arena (`arena`)
@@ -21,6 +22,8 @@ Features include client status detection, champion detail pages, in-game overlay
 
 ### Mode-Specific Data
 
+- **Ranked** Gameplay Data:
+  - `https://lol-api-champion.op.gg/api/{region}/champions/ranked/{championId}/{position}?tier={tier}`
 - **ARAM** Gameplay Data:
   - `https://lol-api-champion.op.gg/api/{region}/champions/aram/{championId}/none?tier={tier}`
 - **ARAM Mayhem** Gameplay Data:

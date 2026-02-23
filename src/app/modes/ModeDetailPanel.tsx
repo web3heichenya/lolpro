@@ -5,6 +5,7 @@ import { useI18n } from '@/app/i18n'
 import { AramDetailView } from './aram/AramDetailView'
 import { AramMayhemDetailView } from './aram-mayhem/AramMayhemDetailView'
 import { ArenaDetailView } from './arena/ArenaDetailView'
+import { RankedDetailView } from './ranked/RankedDetailView'
 import { UnsupportedModeState } from './components/UnsupportedModeState'
 
 type Props = {
@@ -25,6 +26,7 @@ type Props = {
 export function ModeDetailPanel(props: Props) {
   const { t } = useI18n()
   const viewByMode: Partial<Record<string, ComponentType<Props>>> = {
+    ranked: RankedDetailView,
     aram: AramDetailView,
     'aram-mayhem': AramMayhemDetailView,
     arena: ArenaDetailView,

@@ -10,12 +10,19 @@ export type { ChampionSummary } from '../../../shared/contracts'
 type VersionsResponse = string[]
 
 type DdragonChampionsResponse = {
-  version: string
-  data: Record<string, { key: string; name: string }>
+  data: Record<
+    string,
+    {
+      id?: string
+      key?: string
+      name?: string
+      title?: string
+    }
+  >
 }
 
-const UTILS_STATIC = 'https://utils.iesdev.com/static/json'
-const BLITZ_DDRAGON = 'https://blitz-cdn-plain.blitz.gg/blitz/ddragon'
+const RIOT_DDRAGON_BASE = 'https://ddragon.leagueoflegends.com/cdn'
+const RIOT_DDRAGON_VERSIONS_URL = 'https://ddragon.leagueoflegends.com/api/versions.json'
 
 type BlitzDataRepository = Pick<DataRepository, 'readAppMeta' | 'writeAppMeta'>
 type BlitzStructuredRepository = Pick<StructuredRepository, 'getFreshChampionsFromDb' | 'replaceChampions'>
@@ -36,7 +43,7 @@ export class BlitzService {
     const stored = await this.deps.dataRepository.readAppMeta<string>(dataKey, 6 * 60 * 60 * 1000)
     if (stored) return stored
 
-    const versions = await this.httpFetch<VersionsResponse>(`${UTILS_STATIC}/lol/riot/versions`, {
+    const versions = await this.httpFetch<VersionsResponse>(RIOT_DDRAGON_VERSIONS_URL, {
       timeoutMs: 10_000,
     })
     const version = versions?.[0]
@@ -52,22 +59,24 @@ export class BlitzService {
 
     const dd = await this.getLatestDdragonVersion()
     const json = await this.httpFetch<DdragonChampionsResponse>(
-      `${BLITZ_DDRAGON}/${dd}/data/${locale}/champions.json`,
+      `${RIOT_DDRAGON_BASE}/${dd}/data/${locale}/champion.json`,
       {
         timeoutMs: 15_000,
       },
     )
 
-    const list = Object.entries(json.data).map(([slug, v]) => ({
-      id: v.key,
-      name: v.name,
+    const list = Object.entries(json.data ?? {}).map(([slug, v]) => ({
+      id: v.key ?? '',
+      name: v.name ?? slug,
+      title: v.title || undefined,
       slug,
       iconUrl: `https://ddragon.leagueoflegends.com/cdn/${dd}/img/champion/${slug}.png`,
       splashUrl: `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${slug}_0.jpg`,
     }))
+    const filtered = list.filter((row) => row.id)
 
-    list.sort((a, b) => a.name.localeCompare(b.name))
-    await this.deps.structuredRepository.replaceChampions(locale, list)
-    return list
+    filtered.sort((a, b) => a.name.localeCompare(b.name))
+    await this.deps.structuredRepository.replaceChampions(locale, filtered)
+    return filtered
   }
 }
