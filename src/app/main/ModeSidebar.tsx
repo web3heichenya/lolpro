@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Gamepad2, RefreshCw, Swords } from 'lucide-react'
+import { Gamepad2, Gem, RefreshCw, Shield, Snowflake, Swords, type LucideIcon } from 'lucide-react'
 
 import { DEFAULT_GAME_MODE, type GameModeId } from '@shared/gameModes'
 
@@ -16,6 +16,25 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 
 const APP_ICON_URL = new URL('../../assets/app-icon.png', import.meta.url).toString()
+
+type ModeVisual = {
+  icon: LucideIcon
+}
+
+const MODE_VISUALS: Record<GameModeId, ModeVisual> = {
+  ranked: {
+    icon: Shield,
+  },
+  aram: {
+    icon: Snowflake,
+  },
+  'aram-mayhem': {
+    icon: Gem,
+  },
+  arena: {
+    icon: Swords,
+  },
+}
 
 type Props = {
   modeId: GameModeId
@@ -127,37 +146,43 @@ export function ModeSidebar({
 
               {(
                 supportedModes ?? [{ id: DEFAULT_GAME_MODE, label: t('app.mode.aram-mayhem'), features: [] }]
-              ).map((m) => (
-                <Button
-                  key={m.id}
-                  variant="ghost"
-                  className={cn(
-                    'sidebar-mode-item sidebar-mode-item-regular group h-auto w-full justify-start gap-3 rounded-2xl border px-3 py-3 text-foreground hover:bg-transparent! hover:text-foreground!',
-                    mainPanel === 'build' && m.id === modeId
-                      ? 'sidebar-mode-item-active border-border/70 bg-linear-to-r from-accent/90 via-accent/62 to-transparent shadow-sm hover:border-border/70 hover:bg-linear-to-r hover:from-accent/90 hover:via-accent/62 hover:to-transparent hover:shadow-sm'
-                      : 'sidebar-mode-item-inactive border-border/45 bg-background/30 hover:border-border/70 hover:bg-linear-to-r hover:from-accent/90 hover:via-accent/62 hover:to-transparent hover:shadow-sm',
-                  )}
-                  onClick={() => {
-                    setMainPanel('build')
-                    setModeId(m.id)
-                    onModeSwitchToList(m.id)
-                  }}
-                >
-                  <div
+              ).map((m) => {
+                const visual = MODE_VISUALS[m.id]
+                const ModeIcon = visual.icon
+                const active = mainPanel === 'build' && m.id === modeId
+
+                return (
+                  <Button
+                    key={m.id}
+                    variant="ghost"
                     className={cn(
-                      'sidebar-mode-item-icon grid size-9 place-items-center rounded-2xl border',
-                      mainPanel === 'build' && m.id === modeId
-                        ? 'sidebar-mode-item-icon-active border-border/70 bg-linear-to-r from-accent/85 via-accent/62 to-transparent'
-                        : 'sidebar-mode-item-icon-inactive border-border/50 bg-background/50 group-hover:border-border/70 group-hover:bg-linear-to-r group-hover:from-accent/85 group-hover:via-accent/62 group-hover:to-transparent',
+                      'sidebar-mode-item sidebar-mode-item-regular group h-auto w-full justify-start gap-3 rounded-2xl border px-3 py-3 text-foreground hover:bg-transparent! hover:text-foreground!',
+                      active
+                        ? 'sidebar-mode-item-active border-border/70 bg-linear-to-r from-accent/90 via-accent/62 to-transparent shadow-sm hover:border-border/70 hover:bg-linear-to-r hover:from-accent/90 hover:via-accent/62 hover:to-transparent hover:shadow-sm'
+                        : 'sidebar-mode-item-inactive border-border/45 bg-background/30 hover:border-border/70 hover:bg-linear-to-r hover:from-accent/90 hover:via-accent/62 hover:to-transparent hover:shadow-sm',
                     )}
+                    onClick={() => {
+                      setMainPanel('build')
+                      setModeId(m.id)
+                      onModeSwitchToList(m.id)
+                    }}
                   >
-                    <Swords className="size-4 text-muted-foreground" />
-                  </div>
-                  <div className="min-w-0 text-left">
-                    <div className="truncate text-sm font-semibold">{resolveModeLabel(m.id, m.label)}</div>
-                  </div>
-                </Button>
-              ))}
+                    <div
+                      className={cn(
+                        'sidebar-mode-item-icon grid size-9 place-items-center rounded-2xl border',
+                        active
+                          ? 'sidebar-mode-item-icon-active border-border/70 bg-linear-to-r from-accent/85 via-accent/62 to-transparent'
+                          : 'sidebar-mode-item-icon-inactive border-border/50 bg-background/50 group-hover:border-border/70 group-hover:bg-linear-to-r group-hover:from-accent/85 group-hover:via-accent/62 group-hover:to-transparent',
+                      )}
+                    >
+                      <ModeIcon className="size-4 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0 text-left">
+                      <div className="truncate text-sm font-semibold">{resolveModeLabel(m.id, m.label)}</div>
+                    </div>
+                  </Button>
+                )
+              })}
             </div>
           </ScrollArea>
         </div>

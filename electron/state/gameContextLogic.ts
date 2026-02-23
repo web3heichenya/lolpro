@@ -14,6 +14,7 @@ export function buildChampionKeyToIdMap(champions: ChampionSummary[]) {
     if (!Number.isFinite(id)) continue
     map.set(normalizeChampionKey(c.slug), id)
     map.set(normalizeChampionKey(c.name), id)
+    if (c.title) map.set(normalizeChampionKey(c.title), id)
   }
   return map
 }

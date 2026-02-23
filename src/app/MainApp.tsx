@@ -93,7 +93,7 @@ export default function MainApp() {
   const filteredChampions = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase()
     if (!q) return champions
-    return champions.filter((c) => `${c.name} ${c.slug} ${c.id}`.toLowerCase().includes(q))
+    return champions.filter((c) => `${c.name} ${c.title ?? ''} ${c.slug} ${c.id}`.toLowerCase().includes(q))
   }, [champions, deferredQuery])
 
   useEffect(() => {

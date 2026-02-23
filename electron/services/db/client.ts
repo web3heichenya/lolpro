@@ -84,6 +84,11 @@ const MIGRATIONS: Migration[] = [
       'CREATE INDEX IF NOT EXISTS idx_mode_tier_lists_updated_at ON mode_tier_lists(updated_at)',
     ],
   },
+  {
+    id: 2,
+    name: 'champions_add_title',
+    sql: ['ALTER TABLE champions ADD COLUMN title TEXT'],
+  },
 ]
 
 type DbContext = {

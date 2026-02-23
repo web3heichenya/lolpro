@@ -11,6 +11,7 @@ export type OverlayAugmentRarity = 'prismatic' | 'gold' | 'silver'
 export interface ChampionSummary {
   id: string
   name: string
+  title?: string
   slug: string
   iconUrl?: string
   splashUrl?: string

@@ -13,6 +13,7 @@ export const gameModeIdSchema = z.enum(GAME_MODES)
 export const championSummarySchema = z.object({
   id: z.string(),
   name: z.string(),
+  title: z.string().optional(),
   slug: z.string(),
   iconUrl: z.string().optional(),
   splashUrl: z.string().optional(),
