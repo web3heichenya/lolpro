@@ -1,6 +1,12 @@
 import { ipcRenderer } from 'electron'
 
-import type { EventChannel, EventPayload, InvokeChannel, InvokeInput, InvokeOutput } from '../../shared/ipc'
+import type {
+  EventChannel,
+  EventPayload,
+  InvokeChannel,
+  InvokeInput,
+  InvokeOutput,
+} from '../../shared/ipc/types'
 import type { IpcErrorPayload } from '../../shared/contracts'
 import { decodeIpcError } from '../ipc/errors'
 

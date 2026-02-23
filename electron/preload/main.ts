@@ -1,6 +1,7 @@
 import { contextBridge } from 'electron'
 
-import { IPC_CHANNELS, type MainRendererApi } from '../../shared/ipc'
+import { IPC_CHANNELS } from '../../shared/ipc/channels'
+import type { MainRendererApi } from '../../shared/ipc/rendererApi'
 import { invokeIpc } from './ipcClient'
 import { createBaseRendererApi } from './baseApi'
 
