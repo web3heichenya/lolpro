@@ -11,6 +11,10 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 
+function championCardArtUrl(slug: string) {
+  return `https://ddragon.leagueoflegends.com/cdn/img/champion/centered/${slug}_0.jpg`
+}
+
 export const ChampionListPanel = memo(function ChampionListPanel({
   active,
   champions,
@@ -132,13 +136,19 @@ export const ChampionListPanel = memo(function ChampionListPanel({
                   <div className="relative h-[138px] w-full">
                     {c.splashUrl ? (
                       <img
-                        src={c.splashUrl}
+                        src={championCardArtUrl(c.slug)}
+                        data-fallback-src={c.splashUrl}
                         alt={c.name}
                         className="absolute inset-0 h-full w-full object-cover opacity-90"
                         loading="lazy"
                         decoding="async"
                         fetchPriority="low"
                         onError={(e) => {
+                          const fallback = e.currentTarget.dataset.fallbackSrc
+                          if (fallback && e.currentTarget.src !== fallback) {
+                            e.currentTarget.src = fallback
+                            return
+                          }
                           e.currentTarget.style.display = 'none'
                         }}
                       />

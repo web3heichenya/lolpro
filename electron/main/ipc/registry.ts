@@ -48,6 +48,9 @@ function parseOutput<TChannel extends InvokeChannel>(
   return parsed.data as InvokeOutput<TChannel>
 }
 
+const shouldValidateIpcOutput =
+  process.env.IPC_VALIDATE_OUTPUT === '1' || process.env.NODE_ENV !== 'production'
+
 export function createIpcRegistry(senderGuard: SenderGuard) {
   return {
     handle<TChannel extends InvokeChannel>(channel: TChannel, handler: Handler<TChannel>) {
@@ -56,7 +59,8 @@ export function createIpcRegistry(senderGuard: SenderGuard) {
           senderGuard(event, channel)
           const input = parseInput(channel, rawInput)
           const output = await handler(input, event)
-          return parseOutput(channel, output)
+          if (shouldValidateIpcOutput) return parseOutput(channel, output)
+          return output as InvokeOutput<TChannel>
         } catch (error) {
           throw encodeIpcError(error)
         }

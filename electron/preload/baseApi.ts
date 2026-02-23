@@ -1,4 +1,5 @@
-import { IPC_CHANNELS, type BaseRendererApi } from '../../shared/ipc'
+import { IPC_CHANNELS } from '../../shared/ipc/channels'
+import type { BaseRendererApi } from '../../shared/ipc/rendererApi'
 import { invokeIpc, subscribeIpcEvent } from './ipcClient'
 import { getRendererPlatform } from './platform'
 

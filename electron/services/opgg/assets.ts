@@ -81,6 +81,7 @@ function cdragonAssetUrl(pathValue?: string): string | undefined {
 
 export class OPGGAssetsService {
   private cache = new Map<string, CachedValue<unknown>>()
+  private readonly maxCacheEntries = 256
 
   private getCached<T>(key: string): T | null {
     const cached = this.cache.get(key)
@@ -93,6 +94,10 @@ export class OPGGAssetsService {
   }
 
   private setCached<T>(key: string, value: T, ttlMs: number): void {
+    if (this.cache.size >= this.maxCacheEntries) {
+      const oldestKey = this.cache.keys().next().value
+      if (oldestKey !== undefined) this.cache.delete(oldestKey)
+    }
     this.cache.set(key, {
       value,
       expiresAt: Date.now() + ttlMs,

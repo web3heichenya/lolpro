@@ -1,10 +1,13 @@
 import type { MainProcessDependencies } from '../bootstrap/dependencies'
 import { BuildService } from './buildService'
 import { GameService } from './gameService'
+import { UpdateService } from './updateService'
+import { log } from '../../services/logging/logger'
 
 export type MainServices = {
   buildService: BuildService
   gameService: GameService
+  updateService: UpdateService
 }
 
 export function createMainServices(dependencies: MainProcessDependencies): MainServices {
@@ -18,5 +21,6 @@ export function createMainServices(dependencies: MainProcessDependencies): MainS
       dependencies.buildFetcher,
     ),
     gameService: new GameService(dependencies.gameContext),
+    updateService: new UpdateService(log('updater')),
   }
 }

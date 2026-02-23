@@ -15,6 +15,7 @@ import { ModeSidebar } from '@/app/main/ModeSidebar'
 import { useMainActions } from '@/app/main/useMainActions'
 import { ModeDetailPanel } from '@/app/modes/ModeDetailPanel'
 import {
+  useAppUpdateStatusQuery,
   useActiveBuildQuery,
   useBuildQuery,
   useChampionProfileQuery,
@@ -44,6 +45,8 @@ export default function MainApp() {
 
   const { data: supportedModesData } = useSupportedModesQuery()
   const supportedModes = supportedModesData ?? null
+  const { data: appUpdateStatusData } = useAppUpdateStatusQuery()
+  const appUpdateStatus = appUpdateStatusData ?? null
   const { data: championsData } = useChampionsQuery(effectiveLang)
   const champions = championsData ?? EMPTY_CHAMPIONS
   const opggRegion = settings?.dataSource.opgg.region ?? DEFAULT_OPGG_REGION
@@ -113,6 +116,9 @@ export default function MainApp() {
     onToggleOverlayPinned,
     onLoadPlayerCareer,
     onLoadSummonerByPuuid,
+    onCheckAppUpdate,
+    onDownloadAppUpdate,
+    onInstallAppUpdate,
   } = useMainActions({
     api,
     mutate,
@@ -178,6 +184,10 @@ export default function MainApp() {
               onApplySettingsPatch={onApplySettingsPatch}
               onClearCacheForMode={onClearCacheForMode}
               onResetSettings={onResetSettings}
+              appUpdateStatus={appUpdateStatus}
+              onCheckAppUpdate={onCheckAppUpdate}
+              onDownloadAppUpdate={onDownloadAppUpdate}
+              onInstallAppUpdate={onInstallAppUpdate}
             />
 
             <main className="flex min-w-0 flex-1 flex-col bg-background">

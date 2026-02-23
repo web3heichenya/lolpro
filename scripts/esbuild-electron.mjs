@@ -1,5 +1,6 @@
 import esbuild from 'esbuild'
 import { spawn } from 'node:child_process'
+import { mkdir, rm } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import process from 'node:process'
 import path from 'node:path'
@@ -47,6 +48,12 @@ function restartElectron() {
 }
 
 async function buildAll({ watchMode }) {
+  if (!watchMode) {
+    // Ensure stale artifacts from previous builds are removed before packaging.
+    await rm(outdir, { recursive: true, force: true })
+    await mkdir(outdir, { recursive: true })
+  }
+
   const common = {
     bundle: true,
     platform: 'node',
@@ -57,7 +64,7 @@ async function buildAll({ watchMode }) {
     outExtension: { '.js': '.cjs' },
     logLevel: 'info',
     // Keep native deps external so electron-builder can ship them as-is.
-    external: ['electron', 'better-sqlite3'],
+    external: ['electron', 'better-sqlite3', 'electron-updater'],
     define: {
       'process.env.NODE_ENV': JSON.stringify(watchMode ? 'development' : 'production'),
     },

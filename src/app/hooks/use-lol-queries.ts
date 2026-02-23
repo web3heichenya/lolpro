@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 
 import type {
+  AppUpdateStatus,
   BuildResult,
   ChampionProfile,
   ChampionSummary,
@@ -17,6 +18,7 @@ const gameContextKey = 'gameContext'
 const activeBuildKey = 'activeBuild'
 const supportedModesKey = 'supportedModes'
 const accessibilityKey = 'accessibility'
+const updateStatusKey = 'updateStatus'
 
 export const swrKeys = {
   settingsKey,
@@ -24,6 +26,7 @@ export const swrKeys = {
   activeBuildKey,
   supportedModesKey,
   accessibilityKey,
+  updateStatusKey,
   championsKey: (lang: RiotLocale) => ['champions', lang] as const,
   championProfileKey: (lang: RiotLocale, championId: string) =>
     ['championProfile', lang, championId] as const,
@@ -45,6 +48,10 @@ export function useActiveBuildQuery() {
 
 export function useSupportedModesQuery() {
   return useSWR<SupportedMode[]>(supportedModesKey, async () => await getLolApi().getSupportedModes())
+}
+
+export function useAppUpdateStatusQuery() {
+  return useSWR<AppUpdateStatus>(updateStatusKey, async () => await getMainLolApi().getAppUpdateStatus())
 }
 
 export function useChampionsQuery(lang: RiotLocale) {

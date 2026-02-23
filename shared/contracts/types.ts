@@ -372,6 +372,34 @@ export type SupportedMode = {
   features: string[]
 }
 
+export type AppUpdateStatusStage =
+  | 'disabled'
+  | 'idle'
+  | 'checking'
+  | 'available'
+  | 'not-available'
+  | 'downloading'
+  | 'downloaded'
+  | 'error'
+
+export type AppUpdateStatus = {
+  stage: AppUpdateStatusStage
+  currentVersion: string
+  latestVersion?: string
+  releaseName?: string
+  releaseDate?: string
+  message?: string
+  progress?: {
+    percent: number
+    transferred: number
+    total: number
+    bytesPerSecond: number
+  }
+  canCheck: boolean
+  canDownload: boolean
+  canInstall: boolean
+}
+
 export type IpcErrorCode =
   | 'VALIDATION_ERROR'
   | 'FORBIDDEN'

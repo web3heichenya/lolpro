@@ -22,6 +22,9 @@ import {
 const logger = log('gameContext')
 export type GameContext = SharedGameContext
 
+const LCU_POLL_FAST_MS = 1500
+const LCU_POLL_SLOW_MS = 6000
+
 type GameContextManagerDeps = {
   getBuild: (params: {
     mode: GameContext['modeId']
@@ -88,6 +91,7 @@ export class GameContextManager extends EventEmitter {
   private liveRunning = false
   private lcuPollTimer: NodeJS.Timeout | null = null
   private lcuPolling = false
+  private lastLcuRefreshAt = 0
 
   private championKeyToId: Map<string, number> | null = null
 
@@ -226,20 +230,39 @@ export class GameContextManager extends EventEmitter {
     if (this.lcuPollTimer) return
     this.lcuPollTimer = setInterval(() => {
       if (!this.started || this.lcuPolling || !this.shouldPollLcu()) return
+      const now = Date.now()
+      const pollInterval = this.getLcuPollIntervalMs()
+      if (now - this.lastLcuRefreshAt < pollInterval) return
+
       this.lcuPolling = true
+      this.lastLcuRefreshAt = now
       void this.lcu
         .refreshNow()
         .catch(() => {})
         .finally(() => {
           this.lcuPolling = false
         })
-    }, 1500)
+    }, LCU_POLL_FAST_MS)
   }
 
   private shouldPollLcu() {
     // Keep lightweight polling whenever connected so we don't miss state changes if websocket
     // push is delayed/dropped or phase values are temporarily unrecognized.
     return this.lcuStatus.connected
+  }
+
+  private getLcuPollIntervalMs() {
+    const phase = this.lcuStatus.phase
+    if (!phase) return LCU_POLL_FAST_MS
+    if (
+      phase === 'ChampSelect' ||
+      phase === 'InProgress' ||
+      phase === 'ReadyCheck' ||
+      phase === 'Matchmaking'
+    ) {
+      return LCU_POLL_FAST_MS
+    }
+    return LCU_POLL_SLOW_MS
   }
 
   private recompute() {

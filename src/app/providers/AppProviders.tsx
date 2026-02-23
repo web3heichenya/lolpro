@@ -31,6 +31,11 @@ function IpcEventBridge() {
       useAppStore.getState().setSelectedId(String(championId))
     })
 
+    const offUpdate =
+      window.mainApi?.onAppUpdateStatusChanged((status) => {
+        void mutate(swrKeys.updateStatusKey, status, false)
+      }) ?? (() => {})
+
     if (window.mainApi) {
       void window.mainApi.startLcuAutoDetect().catch(() => {})
     }
@@ -40,6 +45,7 @@ function IpcEventBridge() {
       offGc()
       offBuild()
       offDetected()
+      offUpdate()
     }
   }, [mutate])
 

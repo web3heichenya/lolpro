@@ -1,5 +1,6 @@
 export type {
   AccessibilityStatus,
+  AppUpdateStatus,
   AugmentRecommendation,
   BuildSummary,
   BuildResult,
