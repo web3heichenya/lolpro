@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import type { BuildResult, ChampionSummary } from '@/app/types'
 import { fmtPct } from '@/app/main/utils'
 import { useI18n } from '@/app/i18n'
@@ -13,14 +15,21 @@ type Props = {
 
 export function BuildSynergiesCard({ build, champions }: Props) {
   const { t } = useI18n()
-  if (!build.synergies?.length) return null
+  const synergies = useMemo(
+    () =>
+      [...(build.synergies ?? [])].sort(
+        (a, b) => (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1),
+      ),
+    [build.synergies],
+  )
+  if (!synergies.length) return null
 
   return (
     <Card className="detail-surface overflow-hidden rounded-3xl">
       <CardContent className="space-y-3 p-4 pt-4">
         <div className="text-sm font-semibold">{t('panel.synergy')}</div>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          {build.synergies.slice(0, 10).map((synergy) => {
+          {synergies.slice(0, 10).map((synergy) => {
             const championName =
               champions.find((champion) => champion.id === String(synergy.championId))?.name ?? null
 

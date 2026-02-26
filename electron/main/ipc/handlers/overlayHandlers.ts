@@ -23,4 +23,9 @@ export function registerOverlayHandlers(registry: Registry, runtime: AppRuntime)
     await runtime.updateSettings({ overlay: { interactive } })
     return undefined
   })
+
+  registry.handle(IPC_CHANNELS.invoke.overlayReportInteraction, async () => {
+    runtime.reportOverlayInteraction()
+    return undefined
+  })
 }

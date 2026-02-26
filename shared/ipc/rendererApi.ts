@@ -43,6 +43,7 @@ export type BaseRendererApi = {
 
   getAccessibilityStatus: () => Promise<AccessibilityStatus>
   openAccessibilitySettings: () => Promise<void>
+  reportOverlayInteraction: () => Promise<void>
 }
 
 export type MainRendererApi = BaseRendererApi & {

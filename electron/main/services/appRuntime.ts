@@ -1,17 +1,15 @@
 import { app, BrowserWindow, globalShortcut, screen, systemPreferences } from 'electron'
-
 import { normalizeRiotLocale } from '../../services/blitz/locales'
 import { DEFAULT_SETTINGS, type Settings, type SettingsPatch } from '../../services/settings/types'
 import type { MainProcessDependencies } from '../bootstrap/dependencies'
 import { createMainWindow } from '../windows/mainWindow'
 import { createOverlayWindow } from '../windows/overlayWindow'
-
+import { registerAppShortcuts } from './shortcutRegistrar'
 type Logger = {
   info: (msg: string, meta?: Record<string, unknown>) => void
   warn: (msg: string, meta?: Record<string, unknown>) => void
   error: (msg: string, meta?: Record<string, unknown>) => void
 }
-
 export class AppRuntime {
   private started = false
   private mainWindow: BrowserWindow | null = null
@@ -20,8 +18,11 @@ export class AppRuntime {
   private applyingOverlayBounds = false
   private overlayMoveDebounce: NodeJS.Timeout | null = null
   private overlayMoveListener: (() => void) | null = null
+  private overlayInteractiveAutoResetTimer: NodeJS.Timeout | null = null
+  private temporaryInteractiveActive = false
   private settingsMutationQueue: Promise<void> = Promise.resolve()
   private readonly cycleOverlayAugmentHotkey = 'CommandOrControl+Shift+J'
+  private readonly temporaryInteractiveMs = 5000
   constructor(
     private readonly logger: Logger,
     private readonly dependencies: Pick<
@@ -32,7 +33,6 @@ export class AppRuntime {
 
   getMainWindow = () => this.mainWindow
   getOverlayWindow = () => this.overlayWindow
-
   showMainWindow() {
     this.ensureWindows()
     this.applyOverlayPositionFromSettings(this.currentSettings)
@@ -70,6 +70,7 @@ export class AppRuntime {
     this.dependencies.gameContext.off('gameEnded', this.onGameEnded)
     if (this.overlayMoveDebounce) clearTimeout(this.overlayMoveDebounce)
     this.overlayMoveDebounce = null
+    this.clearTemporaryInteractiveReset()
     if (this.overlayWindow && this.overlayMoveListener) {
       this.overlayWindow.off('move', this.overlayMoveListener)
     }
@@ -100,6 +101,11 @@ export class AppRuntime {
       return
     }
     void this.updateSettings({ overlay: { pinned: true, interactive: true } })
+  }
+
+  reportOverlayInteraction() {
+    if (!this.temporaryInteractiveActive || !this.currentSettings.overlay.interactive) return
+    this.scheduleTemporaryInteractiveReset()
   }
 
   private ensureWindows() {
@@ -142,13 +148,20 @@ export class AppRuntime {
 
   private applyOverlayInteractiveFromSettings(s: Settings) {
     if (!this.overlayWindow) return
+    const topLevel = process.platform === 'win32' ? 'screen-saver' : 'floating'
+    this.overlayWindow.setAlwaysOnTop(true, topLevel)
+    this.overlayWindow.moveTop()
+
     if (s.overlay.interactive) {
       this.overlayWindow.setIgnoreMouseEvents(false)
       this.overlayWindow.setFocusable(true)
       this.overlayWindow.show()
+      this.overlayWindow.focus()
     } else {
       this.overlayWindow.setIgnoreMouseEvents(true, { forward: true })
       this.overlayWindow.setFocusable(false)
+      this.temporaryInteractiveActive = false
+      this.clearTemporaryInteractiveReset()
     }
   }
 
@@ -194,41 +207,18 @@ export class AppRuntime {
   }
 
   private registerShortcuts(s: Settings) {
-    globalShortcut.unregisterAll()
-    const okPinned = globalShortcut.register(s.hotkeys.togglePinned, () => {
-      if (this.currentSettings.overlay.pinned) {
-        void this.updateSettings({ overlay: { pinned: false } })
-      } else {
-        void this.updateSettings({ overlay: { pinned: true, interactive: true } })
-      }
+    registerAppShortcuts({
+      settings: s,
+      logger: this.logger,
+      cycleOverlayAugmentHotkey: this.cycleOverlayAugmentHotkey,
+      getCurrentSettings: () => this.currentSettings,
+      setTemporaryInteractiveActive: (active) => {
+        this.temporaryInteractiveActive = active
+      },
+      clearTemporaryInteractiveReset: () => this.clearTemporaryInteractiveReset(),
+      scheduleTemporaryInteractiveReset: () => this.scheduleTemporaryInteractiveReset(),
+      updateSettings: async (patch) => await this.updateSettings(patch),
     })
-    if (!okPinned) {
-      this.logger.warn('failed to register hotkey', {
-        hotkey: s.hotkeys.togglePinned,
-        action: 'togglePinned',
-      })
-    }
-
-    const okInteractive = globalShortcut.register(s.hotkeys.toggleInteractive, () => {
-      void this.updateSettings({ overlay: { interactive: !this.currentSettings.overlay.interactive } })
-    })
-    if (!okInteractive) {
-      this.logger.warn('failed to register hotkey', {
-        hotkey: s.hotkeys.toggleInteractive,
-        action: 'toggleInteractive',
-      })
-    }
-
-    const okCycleAugment = globalShortcut.register(this.cycleOverlayAugmentHotkey, () => {
-      const current = this.currentSettings.overlay.augmentRarity
-      const next = current === 'prismatic' ? 'gold' : current === 'gold' ? 'silver' : 'prismatic'
-      void this.updateSettings({ overlay: { augmentRarity: next } })
-    })
-    if (!okCycleAugment) {
-      this.logger.warn('failed to register overlay augment cycle hotkey', {
-        hotkey: this.cycleOverlayAugmentHotkey,
-      })
-    }
   }
 
   private bindOverlayMovePersistence() {
@@ -253,8 +243,7 @@ export class AppRuntime {
   }
 
   private onGameEnded = () => {
-    if (!this.overlayWindow) return
-    if (!this.currentSettings.overlay.pinned) this.overlayWindow.hide()
+    if (this.overlayWindow && !this.currentSettings.overlay.pinned) this.overlayWindow.hide()
   }
 
   private onMainWindowClosed = () => {
@@ -267,6 +256,8 @@ export class AppRuntime {
     this.overlayMoveListener = null
     if (this.overlayMoveDebounce) clearTimeout(this.overlayMoveDebounce)
     this.overlayMoveDebounce = null
+    this.temporaryInteractiveActive = false
+    this.clearTemporaryInteractiveReset()
   }
 
   private destroyOverlayWindow() {
@@ -276,6 +267,8 @@ export class AppRuntime {
       this.overlayMoveListener = null
       if (this.overlayMoveDebounce) clearTimeout(this.overlayMoveDebounce)
       this.overlayMoveDebounce = null
+      this.temporaryInteractiveActive = false
+      this.clearTemporaryInteractiveReset()
       return
     }
 
@@ -283,7 +276,25 @@ export class AppRuntime {
     this.overlayMoveListener = null
     if (this.overlayMoveDebounce) clearTimeout(this.overlayMoveDebounce)
     this.overlayMoveDebounce = null
+    this.temporaryInteractiveActive = false
+    this.clearTemporaryInteractiveReset()
 
     overlay.close()
+  }
+
+  private scheduleTemporaryInteractiveReset() {
+    this.clearTemporaryInteractiveReset()
+    this.overlayInteractiveAutoResetTimer = setTimeout(() => {
+      if (!this.temporaryInteractiveActive || !this.currentSettings.overlay.interactive) return
+      this.temporaryInteractiveActive = false
+      void this.updateSettings({ overlay: { interactive: false } })
+    }, this.temporaryInteractiveMs)
+  }
+
+  private clearTemporaryInteractiveReset() {
+    if (!this.overlayInteractiveAutoResetTimer) return
+    const timer = this.overlayInteractiveAutoResetTimer
+    this.overlayInteractiveAutoResetTimer = null
+    clearTimeout(timer)
   }
 }

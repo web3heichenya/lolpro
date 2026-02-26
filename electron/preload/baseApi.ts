@@ -30,5 +30,6 @@ export function createBaseRendererApi(): BaseRendererApi {
     getAccessibilityStatus: async () => await invokeIpc(IPC_CHANNELS.invoke.systemGetAccessibilityStatus),
     openAccessibilitySettings: async () =>
       await invokeIpc(IPC_CHANNELS.invoke.systemOpenAccessibilitySettings),
+    reportOverlayInteraction: async () => await invokeIpc(IPC_CHANNELS.invoke.overlayReportInteraction),
   }
 }

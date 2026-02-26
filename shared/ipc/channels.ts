@@ -28,6 +28,7 @@ export const IPC_CHANNELS = {
     overlayToggle: 'overlay:toggle',
     overlaySetVisible: 'overlay:setVisible',
     overlaySetInteractive: 'overlay:setInteractive',
+    overlayReportInteraction: 'overlay:reportInteraction',
 
     windowMinimize: 'window:minimize',
     windowMaximizeToggle: 'window:maximizeToggle',

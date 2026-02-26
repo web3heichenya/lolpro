@@ -129,6 +129,10 @@ export const invokeChannelSchemas = {
     input: setOverlayInteractiveRequestSchema,
     output: emptyResponseSchema,
   },
+  [IPC_CHANNELS.invoke.overlayReportInteraction]: {
+    input: noInputSchema,
+    output: emptyResponseSchema,
+  },
 
   [IPC_CHANNELS.invoke.windowMinimize]: {
     input: noInputSchema,
