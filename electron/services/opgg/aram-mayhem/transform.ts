@@ -4,6 +4,7 @@ import type {
   RiotLocale,
   StartingItemsRecommendation,
 } from '../../../../shared/contracts'
+import { compareItemsByCompositeScore } from '../../../../shared/itemSort'
 import {
   asArray,
   cdragonAugmentIconUrl,
@@ -46,7 +47,6 @@ function compareByWinRateThenPickRate(
 ): number {
   return (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1)
 }
-
 export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhemBuildResult {
   const {
     championId,
@@ -96,7 +96,7 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
   )
     .map((combo) => comboToItems(combo, itemMetaMap, assetPatch))
     .filter((combo): combo is StartingItemsRecommendation => !!combo)
-    .sort(compareByWinRateThenPickRate)
+    .sort(compareItemsByCompositeScore)
     .slice(0, 8)
 
   const coreItems = (
@@ -106,7 +106,7 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
   )
     .map((combo) => comboToItems(combo, itemMetaMap, assetPatch))
     .filter((combo): combo is StartingItemsRecommendation => !!combo)
-    .sort(compareByWinRateThenPickRate)
+    .sort(compareItemsByCompositeScore)
     .slice(0, 8)
 
   const bootsItems = (
@@ -114,7 +114,7 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
   )
     .map((combo) => comboToItems(combo, itemMetaMap, assetPatch))
     .filter((combo): combo is StartingItemsRecommendation => !!combo)
-    .sort(compareByWinRateThenPickRate)
+    .sort(compareItemsByCompositeScore)
     .slice(0, 8)
 
   const situationalItemRows = (
@@ -137,7 +137,7 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
       }
     })
     .filter((row): row is NonNullable<typeof row> => !!row)
-    .sort(compareByWinRateThenPickRate)
+    .sort(compareItemsByCompositeScore)
     .slice(0, 18)
 
   const situationalItems = situationalItemRows.flatMap((row) => row.itemIds).slice(0, 18)
@@ -198,7 +198,7 @@ export function transformOpggToAramMayhemBuild(input: TransformInput): AramMayhe
   })
 
   const items = Array.from(flatItemMap.values()).sort(
-    (a, b) => compareByWinRateThenPickRate(a, b) || (a.tier ?? 999) - (b.tier ?? 999),
+    (a, b) => compareItemsByCompositeScore(a, b) || (a.tier ?? 999) - (b.tier ?? 999),
   )
 
   const augmentsById = new Map<string, AramMayhemBuildResult['augments'][number]>()

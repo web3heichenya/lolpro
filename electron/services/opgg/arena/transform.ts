@@ -1,4 +1,5 @@
 import type { ArenaBuildResult, RiotLocale } from '../../../../shared/contracts'
+import { compareItemsByCompositeScore } from '../../../../shared/itemSort'
 import type { CDragonAugment, ItemMeta, OpggChampionBuildResponse, SummonerSpellMeta } from '../types'
 import { asArray, comboToItems, computeWinRate, toInt, toNum } from '../helpers'
 import { transformOpggToAramMayhemBuild } from '../aram-mayhem/transform'
@@ -13,13 +14,6 @@ type TransformInput = {
   spellMetaMap: Record<number, SummonerSpellMeta>
   augmentMetaMap: Map<number, CDragonAugment>
   _lang?: RiotLocale
-}
-
-function compareByWinRateThenPickRate(
-  a: { winRate?: number | null; pickRate?: number | null },
-  b: { winRate?: number | null; pickRate?: number | null },
-): number {
-  return (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1)
 }
 
 function resolveArenaItemMeta(itemId: number, itemMetaMap: Record<string, ItemMeta>) {
@@ -47,17 +41,17 @@ export function transformOpggToArenaBuild(input: TransformInput): ArenaBuildResu
   const startingItems = asArray(arenaData.starter_items)
     .map((combo) => comboToItems(combo, input.itemMetaMap, input.assetPatch))
     .filter((combo): combo is NonNullable<typeof combo> => !!combo)
-    .sort(compareByWinRateThenPickRate)
+    .sort(compareItemsByCompositeScore)
 
   const coreItems = asArray(arenaData.core_items)
     .map((combo) => comboToItems(combo, input.itemMetaMap, input.assetPatch))
     .filter((combo): combo is NonNullable<typeof combo> => !!combo)
-    .sort(compareByWinRateThenPickRate)
+    .sort(compareItemsByCompositeScore)
 
   const bootsItems = asArray(arenaData.boots)
     .map((combo) => comboToItems(combo, input.itemMetaMap, input.assetPatch))
     .filter((combo): combo is NonNullable<typeof combo> => !!combo)
-    .sort(compareByWinRateThenPickRate)
+    .sort(compareItemsByCompositeScore)
 
   const situationalItems = asArray(arenaData.last_items).flatMap((combo) => {
     const pickRate = toNum(combo.pick_rate)
@@ -74,12 +68,12 @@ export function transformOpggToArenaBuild(input: TransformInput): ArenaBuildResu
         games,
       }))
   })
-  situationalItems.sort(compareByWinRateThenPickRate)
+  situationalItems.sort(compareItemsByCompositeScore)
 
   const prismaticItems = asArray(arenaData.prism_items)
     .map((combo) => comboToItems(combo, input.itemMetaMap, input.assetPatch))
     .filter((combo): combo is NonNullable<typeof combo> => !!combo)
-    .sort(compareByWinRateThenPickRate)
+    .sort(compareItemsByCompositeScore)
 
   // Include prismatic + other item groups in the flat `items` list so overlay + generic item UIs see them too.
   const flat = new Map<string, (typeof base.items)[number]>()
@@ -179,7 +173,7 @@ export function transformOpggToArenaBuild(input: TransformInput): ArenaBuildResu
   })
 
   const items = Array.from(flat.values()).sort(
-    (a, b) => compareByWinRateThenPickRate(a, b) || (a.tier ?? 999) - (b.tier ?? 999),
+    (a, b) => compareItemsByCompositeScore(a, b) || (a.tier ?? 999) - (b.tier ?? 999),
   )
 
   return {

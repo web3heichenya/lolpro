@@ -1,4 +1,5 @@
 import type { AugmentRecommendation, BuildResult, ItemRecommendation, Settings } from '@/app/types'
+import { compareItemsByCompositeScore } from '@shared/itemSort'
 
 export type OverlayAugmentRarity = Settings['overlay']['augmentRarity']
 
@@ -76,7 +77,5 @@ export function resolveLateItems(build: BuildResult): ItemRecommendation[] {
       }
     })
 
-  return lateItems.sort(
-    (a, b) => (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1),
-  )
+  return lateItems.sort(compareItemsByCompositeScore)
 }

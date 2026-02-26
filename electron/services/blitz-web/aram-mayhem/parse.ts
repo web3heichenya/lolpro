@@ -4,6 +4,7 @@ import type {
   StartingItemsRecommendation,
   SummonerSpellRecommendation,
 } from '../../../../shared/contracts'
+import { compareItemsByCompositeScore } from '../../../../shared/itemSort'
 import { computeWinRate, toInt, toNum } from '../../opgg/helpers'
 import type { ItemMeta, SummonerSpellMeta } from '../../opgg/types'
 
@@ -191,7 +192,7 @@ export function parseSituationalRows(value: unknown): SituationalItemStat[] {
   return asArray(value)
     .map((entry) => toSituationalRow(entry))
     .filter((row): row is SituationalItemStat => !!row)
-    .sort((a, b) => (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1))
+    .sort(compareItemsByCompositeScore)
 }
 
 export function parseSituationalItemIds(
@@ -212,7 +213,7 @@ export function parseBootCombos(params: {
 }): StartingItemsRecommendation[] {
   const rows = parseSituationalRows(params.value)
     .filter((row) => BOOT_ITEM_IDS.has(row.itemId))
-    .sort((a, b) => (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1))
+    .sort(compareItemsByCompositeScore)
     .slice(0, 8)
 
   return rows

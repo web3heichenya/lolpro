@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { compareItemsByCompositeScore } from '@shared/itemSort'
 import type { BuildResult, ItemRecommendation, StartingItemsRecommendation } from '@/app/types'
 import { fmtPct } from '@/app/main/utils'
 import { useI18n } from '@/app/i18n'
@@ -11,13 +12,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 type Props = {
   build: BuildResult
-}
-
-function compareByWinRateThenPickRate(
-  a: { winRate?: number | null; pickRate?: number | null },
-  b: { winRate?: number | null; pickRate?: number | null },
-) {
-  return (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1)
 }
 
 function ItemComboList({
@@ -32,7 +26,7 @@ function ItemComboList({
   if (!combos.length) {
     return <div className="text-sm text-muted-foreground">{emptyText}</div>
   }
-  const orderedCombos = [...combos].sort(compareByWinRateThenPickRate)
+  const orderedCombos = [...combos].sort(compareItemsByCompositeScore)
 
   return (
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -80,7 +74,7 @@ function SituationalItemList({ items }: { items: ItemRecommendation[] }) {
   if (!items.length) {
     return <div className="text-sm text-muted-foreground">{t('panel.items.situationalEmpty')}</div>
   }
-  const orderedItems = [...items].sort(compareByWinRateThenPickRate)
+  const orderedItems = [...items].sort(compareItemsByCompositeScore)
 
   return (
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -147,7 +141,7 @@ export function BuildItemsCard({ build }: Props) {
           averageIndex: null,
         }
       })
-      .sort(compareByWinRateThenPickRate)
+      .sort(compareItemsByCompositeScore)
   }, [build.items, build.patch, build.situationalItems, t])
 
   return (

@@ -1,7 +1,7 @@
 {
   "name": "lol-pro",
   "private": true,
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A lightweight League of Legends desktop assistant, with LCU + LiveClient auto-detection, champion builds, and an in-game overlay.",
   "author": "web3heichenya",
   "type": "module",
