@@ -18,12 +18,23 @@ type Props = {
 
 type AugmentTab = 'prismatic' | 'gold' | 'silver'
 
-function byRarity(items: AugmentRecommendation[]) {
-  return {
+function byRarity(items: AugmentRecommendation[], mode: BuildResult['mode']) {
+  const sortByWinRateThenPickRate = (a: AugmentRecommendation, b: AugmentRecommendation) =>
+    (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1)
+
+  const grouped = {
     prismatic: items.filter((a) => a.rarity === 'kPrismatic'),
     gold: items.filter((a) => a.rarity === 'kGold'),
     silver: items.filter((a) => a.rarity === 'kSilver' || !a.rarity),
   }
+
+  if (mode === 'arena') {
+    grouped.prismatic.sort(sortByWinRateThenPickRate)
+    grouped.gold.sort(sortByWinRateThenPickRate)
+    grouped.silver.sort(sortByWinRateThenPickRate)
+  }
+
+  return grouped
 }
 
 function aramAugmentGrade(tier: number | null | undefined): string | null {
@@ -36,7 +47,7 @@ function aramAugmentGrade(tier: number | null | undefined): string | null {
 
 export function BuildAugmentsCard({ build, showAllAugments, onToggleShowAllAugments }: Props) {
   const { t } = useI18n()
-  const grouped = useMemo(() => byRarity(build.augments), [build.augments])
+  const grouped = useMemo(() => byRarity(build.augments, build.mode), [build.augments, build.mode])
   const [tab, setTab] = useState<AugmentTab>('prismatic')
 
   const activeTab: AugmentTab = grouped[tab].length

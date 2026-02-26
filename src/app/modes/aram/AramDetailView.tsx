@@ -120,7 +120,7 @@ export function AramDetailView({
           <div className="space-y-6">
             <BuildItemsCard build={build} />
             <BuildSkillsCard build={build} />
-            {build.mode === 'aram' || build.mode === 'ranked' ? (
+            {build.mode === 'aram' || build.mode === 'urf' || build.mode === 'ranked' ? (
               <>
                 <BuildSummonerSpellsCard build={build} />
                 <BuildRunesCard build={build} />

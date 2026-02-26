@@ -26,6 +26,13 @@ type RawItemsSection = {
   mode?: string
 }
 
+function compareByWinRateThenPickRate(
+  a: { winRate?: number | null; pickRate?: number | null },
+  b: { winRate?: number | null; pickRate?: number | null },
+): number {
+  return (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1)
+}
+
 function parseIntFromCompactNumberString(s?: string): number | null {
   if (!s) return null
   const n = Number(s.replace(/,/g, '').trim())
@@ -215,5 +222,13 @@ export function parseAramMayhemItems(html: string): {
     if (!itemList.length) itemList = mapItemRowsToItemRecommendations(rows)
   }
 
-  return { items: itemList, coreItems: core, bootsItems: boots, startingItems: starting }
+  const sortCombos = (rows: StartingItemsRecommendation[]) => [...rows].sort(compareByWinRateThenPickRate)
+  const sortItems = (rows: ItemRecommendation[]) => [...rows].sort(compareByWinRateThenPickRate)
+
+  return {
+    items: sortItems(itemList),
+    coreItems: sortCombos(core),
+    bootsItems: sortCombos(boots),
+    startingItems: sortCombos(starting),
+  }
 }

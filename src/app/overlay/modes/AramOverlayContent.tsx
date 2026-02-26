@@ -6,7 +6,7 @@ import { useI18n } from '@/app/i18n'
 import { OverlayBuildEntry } from '../components/BuildEntry'
 import { resolveLateItems } from '../utils'
 
-type AramBuild = Extract<BuildResult, { mode: 'aram' | 'ranked' }>
+type AramBuild = Extract<BuildResult, { mode: 'aram' | 'urf' | 'ranked' }>
 
 export function AramOverlayContent({ build }: { build: AramBuild }) {
   const { t } = useI18n()

@@ -36,6 +36,13 @@ type TransformParams = {
   buildRows: Record<string, unknown>[]
 }
 
+function compareByWinRateThenPickRate(
+  a: { winRate?: number | null; pickRate?: number | null },
+  b: { winRate?: number | null; pickRate?: number | null },
+): number {
+  return (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1)
+}
+
 export async function transformBlitzAramMayhem(params: TransformParams): Promise<AramMayhemBuildResult> {
   const statsRow = params.statsRows[0]
   if (!statsRow) {
@@ -81,7 +88,7 @@ export async function transformBlitzAramMayhem(params: TransformParams): Promise
       }),
     )
     .filter((row): row is NonNullable<typeof row> => !!row)
-    .sort((a, b) => (b.pickRate ?? -1) - (a.pickRate ?? -1))
+    .sort(compareByWinRateThenPickRate)
     .slice(0, 8)
 
   const coreItems = asArray(selectedBuild?.coreItems)
@@ -97,7 +104,7 @@ export async function transformBlitzAramMayhem(params: TransformParams): Promise
       }),
     )
     .filter((row): row is NonNullable<typeof row> => !!row)
-    .sort((a, b) => (b.pickRate ?? -1) - (a.pickRate ?? -1))
+    .sort(compareByWinRateThenPickRate)
     .slice(0, 8)
 
   const situationalRows = parseSituationalRows(selectedBuild?.situationalItems)
@@ -127,7 +134,7 @@ export async function transformBlitzAramMayhem(params: TransformParams): Promise
       })
     })
     .filter((row): row is NonNullable<typeof row> => !!row)
-    .sort((a, b) => (a.tier ?? 999) - (b.tier ?? 999) || (b.pickRate ?? -1) - (a.pickRate ?? -1))
+    .sort((a, b) => compareByWinRateThenPickRate(a, b) || (a.tier ?? 999) - (b.tier ?? 999))
     .slice(0, 36)
 
   // Ensure situational-only entries also carry PR/WR in UI even when absent from summary item map.
@@ -149,7 +156,7 @@ export async function transformBlitzAramMayhem(params: TransformParams): Promise
     )
   }
   const mergedItems = Array.from(itemById.values()).sort(
-    (a, b) => (a.tier ?? 999) - (b.tier ?? 999) || (b.pickRate ?? -1) - (a.pickRate ?? -1),
+    (a, b) => compareByWinRateThenPickRate(a, b) || (a.tier ?? 999) - (b.tier ?? 999),
   )
 
   const augments = Object.entries(statsData.augments ?? {})

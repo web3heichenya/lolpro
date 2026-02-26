@@ -13,6 +13,13 @@ type Props = {
   build: BuildResult
 }
 
+function compareByWinRateThenPickRate(
+  a: { winRate?: number | null; pickRate?: number | null },
+  b: { winRate?: number | null; pickRate?: number | null },
+) {
+  return (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1)
+}
+
 function ItemComboList({
   combos,
   emptyText,
@@ -25,10 +32,11 @@ function ItemComboList({
   if (!combos.length) {
     return <div className="text-sm text-muted-foreground">{emptyText}</div>
   }
+  const orderedCombos = [...combos].sort(compareByWinRateThenPickRate)
 
   return (
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-      {combos.map((combo, idx) => (
+      {orderedCombos.map((combo, idx) => (
         <div
           key={idx}
           className="flex items-center justify-between gap-3 rounded-3xl border border-border/50 bg-background/40 p-3"
@@ -72,10 +80,11 @@ function SituationalItemList({ items }: { items: ItemRecommendation[] }) {
   if (!items.length) {
     return <div className="text-sm text-muted-foreground">{t('panel.items.situationalEmpty')}</div>
   }
+  const orderedItems = [...items].sort(compareByWinRateThenPickRate)
 
   return (
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-      {items.map((item) => (
+      {orderedItems.map((item) => (
         <div
           key={item.itemId}
           className="flex items-center justify-between gap-3 rounded-3xl border border-border/50 bg-background/40 p-3"
@@ -138,6 +147,7 @@ export function BuildItemsCard({ build }: Props) {
           averageIndex: null,
         }
       })
+      .sort(compareByWinRateThenPickRate)
   }, [build.items, build.patch, build.situationalItems, t])
 
   return (

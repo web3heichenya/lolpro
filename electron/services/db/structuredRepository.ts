@@ -16,7 +16,7 @@ export class StructuredRepository {
 
   async listStoredModes(): Promise<SupportedMode[]> {
     const { raw } = this.dbAccessor()
-    const rows = raw.prepare('SELECT id, label, features_json FROM modes ORDER BY id DESC').all() as Array<{
+    const rows = raw.prepare('SELECT id, label, features_json FROM modes ORDER BY id ASC').all() as Array<{
       id: string
       label: string
       features_json: string

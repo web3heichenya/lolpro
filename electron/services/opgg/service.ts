@@ -6,6 +6,7 @@ import type {
   GameModeId,
   RankedBuildResult,
   RiotLocale,
+  UrfBuildResult,
 } from '../../../shared/contracts'
 import { buildSourceKeyForMode } from '../../../shared/cacheKeys'
 import {
@@ -22,6 +23,7 @@ import { asOptionalString, opggMetaLocale, stripMarkup, toNum } from './helpers'
 import { transformOpggToArenaBuild } from './arena/transform'
 import { fetchOpggAramBuild } from './aram/query'
 import { fetchOpggRankedBuild } from './ranked/query'
+import { fetchOpggUrfBuild } from './urf/query'
 import { OPGGAssetsService } from './assets'
 import { scrapeAramMayhemFromOpggWeb } from '../opgg-web/aram-mayhem/scrape'
 import { normalizeChampionKey } from '../../state/gameContextLogic'
@@ -186,6 +188,21 @@ export class OPGGService {
     tier?: OpggTier
   }): Promise<AramBuildResult> {
     return await fetchOpggAramBuild({
+      championId: params.championId,
+      lang: params.lang,
+      region: params.region,
+      tier: params.tier,
+      assets: this.assets,
+    })
+  }
+
+  async getUrfBuild(params: {
+    championId: string
+    lang?: RiotLocale
+    region?: OpggRegion
+    tier?: OpggTier
+  }): Promise<UrfBuildResult> {
+    return await fetchOpggUrfBuild({
       championId: params.championId,
       lang: params.lang,
       region: params.region,

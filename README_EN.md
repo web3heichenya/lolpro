@@ -8,6 +8,7 @@ A League of Legends assistant tool based on Electron + React. Currently supports
 
 - Ranked (`ranked`)
 - ARAM (`aram`)
+- URF (`urf`)
 - ARAM Mayhem (`aram-mayhem`)
 - Arena (`arena`)
 
@@ -26,6 +27,8 @@ Features include client status detection, champion detail pages, in-game overlay
   - `https://lol-api-champion.op.gg/api/{region}/champions/ranked/{championId}/{position}?tier={tier}`
 - **ARAM** Gameplay Data:
   - `https://lol-api-champion.op.gg/api/{region}/champions/aram/{championId}/none?tier={tier}`
+- **URF** Gameplay Data:
+  - `https://lol-api-champion.op.gg/api/{region}/champions/urf/{championId}/none?tier={tier}`
 - **ARAM Mayhem** Gameplay Data:
   - Default source: Blitz Datalake GraphQL
   - Optional source: OP.GG page scraping (Next Flight parsing), switch via `ARAM_MAYHEM_SOURCE=opgg`

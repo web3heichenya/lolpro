@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Gamepad2, Gem, RefreshCw, Shield, Snowflake, Swords, type LucideIcon } from 'lucide-react'
+import { Flame, Gamepad2, Gem, RefreshCw, Shield, Snowflake, Swords, type LucideIcon } from 'lucide-react'
 
 import { DEFAULT_GAME_MODE, type GameModeId } from '@shared/gameModes'
 
@@ -27,6 +27,9 @@ const MODE_VISUALS: Record<GameModeId, ModeVisual> = {
   },
   aram: {
     icon: Snowflake,
+  },
+  urf: {
+    icon: Flame,
   },
   'aram-mayhem': {
     icon: Gem,

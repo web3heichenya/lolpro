@@ -25,6 +25,20 @@ function normalizeName(value?: string | null): string {
   return (value ?? '').trim().toLowerCase()
 }
 
+function pickPreferredTeamRows(params: {
+  sessionRows: TeamPlayerRow[]
+  liveRows: TeamPlayerRow[]
+}): TeamPlayerRow[] {
+  const { sessionRows, liveRows } = params
+  if (liveRows.length > sessionRows.length) return liveRows
+  if (sessionRows.length > liveRows.length) return sessionRows
+
+  const sessionWithPuuid = sessionRows.reduce((acc, row) => acc + (row.puuid ? 1 : 0), 0)
+  const liveWithPuuid = liveRows.reduce((acc, row) => acc + (row.puuid ? 1 : 0), 0)
+  if (liveWithPuuid > sessionWithPuuid) return liveRows
+  return sessionRows
+}
+
 export function InGamePanel({
   champions,
   gameContext,
@@ -179,9 +193,20 @@ export function InGamePanel({
   })()
 
   const hasSessionTeams = sessionMyTeam.length > 0 || sessionEnemyTeam.length > 0
-  const canUseLiveTeams = !hasSessionTeams && (liveTeams.myTeam.length > 0 || liveTeams.enemyTeam.length > 0)
-  const myTeam = canUseLiveTeams ? liveTeams.myTeam : sessionMyTeam
-  const enemyTeam = canUseLiveTeams ? liveTeams.enemyTeam : sessionEnemyTeam
+  const hasLiveTeams = liveTeams.myTeam.length > 0 || liveTeams.enemyTeam.length > 0
+  const inProgress = gameContext?.lcu.phase === 'InProgress'
+
+  const myTeam = inProgress
+    ? pickPreferredTeamRows({ sessionRows: sessionMyTeam, liveRows: liveTeams.myTeam })
+    : !hasSessionTeams && hasLiveTeams
+      ? liveTeams.myTeam
+      : sessionMyTeam
+
+  const enemyTeam = inProgress
+    ? pickPreferredTeamRows({ sessionRows: sessionEnemyTeam, liveRows: liveTeams.enemyTeam })
+    : !hasSessionTeams && hasLiveTeams
+      ? liveTeams.enemyTeam
+      : sessionEnemyTeam
 
   async function openCareerDrawer(player: TeamPlayerRow) {
     if (!player.puuid) return

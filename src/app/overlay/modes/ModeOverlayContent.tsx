@@ -18,6 +18,9 @@ export function ModeOverlayContent({
   if (build.mode === 'aram') {
     return <AramOverlayContent build={build} />
   }
+  if (build.mode === 'urf') {
+    return <AramOverlayContent build={build} />
+  }
   if (build.mode === 'ranked') {
     return <RankedOverlayContent build={build} />
   }

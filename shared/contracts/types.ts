@@ -200,6 +200,28 @@ export interface AramBuildResult extends BuildResultBase {
   synergies?: SynergyRecommendation[]
 }
 
+export interface UrfBuildResult extends BuildResultBase {
+  mode: 'urf'
+  dataSource?: string
+  position?: string
+  summary?: BuildSummary
+  augments: AugmentRecommendation[]
+  items: ItemRecommendation[]
+  runes?: RuneRecommendation[]
+  summonerSpells?: SummonerSpellRecommendation[]
+  skillOrders?: SkillOrderRecommendation[]
+  skillMasteries?: SkillMasteryRecommendation[]
+  startingItems?: StartingItemsRecommendation[]
+  coreItems?: StartingItemsRecommendation[]
+  bootsItems?: StartingItemsRecommendation[]
+  situationalItems?: number[]
+  counters?: {
+    strongAgainst: CounterRecommendation[]
+    weakAgainst: CounterRecommendation[]
+  }
+  synergies?: SynergyRecommendation[]
+}
+
 export interface RankedBuildResult extends BuildResultBase {
   mode: 'ranked'
   dataSource?: string
@@ -246,7 +268,12 @@ export interface ArenaBuildResult extends BuildResultBase {
   synergies?: SynergyRecommendation[]
 }
 
-export type BuildResult = RankedBuildResult | AramBuildResult | AramMayhemBuildResult | ArenaBuildResult
+export type BuildResult =
+  | RankedBuildResult
+  | AramBuildResult
+  | UrfBuildResult
+  | AramMayhemBuildResult
+  | ArenaBuildResult
 
 export interface LcuStatus {
   connected: boolean

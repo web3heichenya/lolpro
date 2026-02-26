@@ -28,6 +28,7 @@ export function ModeDetailPanel(props: Props) {
   const viewByMode: Partial<Record<string, ComponentType<Props>>> = {
     ranked: RankedDetailView,
     aram: AramDetailView,
+    urf: AramDetailView,
     'aram-mayhem': AramMayhemDetailView,
     arena: ArenaDetailView,
   }

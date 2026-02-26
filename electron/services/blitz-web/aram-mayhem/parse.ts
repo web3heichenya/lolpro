@@ -13,6 +13,7 @@ export type SituationalItemStat = {
   itemId: number
   games: number | null
   wins: number | null
+  winRate: number | null
   pickRate: number | null
   averageIndex: number | null
 }
@@ -26,6 +27,7 @@ function toSituationalRow(value: unknown): SituationalItemStat | null {
     itemId,
     games: toNum(record.games),
     wins: toNum(record.wins),
+    winRate: computeWinRate(toNum(record.games), toNum(record.wins)),
     pickRate: toNum(record.pickRate ?? record.pick_rate),
     averageIndex: toNum(record.averageIndex ?? record.average_index),
   }
@@ -189,7 +191,7 @@ export function parseSituationalRows(value: unknown): SituationalItemStat[] {
   return asArray(value)
     .map((entry) => toSituationalRow(entry))
     .filter((row): row is SituationalItemStat => !!row)
-    .sort((a, b) => (b.pickRate ?? -1) - (a.pickRate ?? -1))
+    .sort((a, b) => (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1))
 }
 
 export function parseSituationalItemIds(
@@ -210,7 +212,7 @@ export function parseBootCombos(params: {
 }): StartingItemsRecommendation[] {
   const rows = parseSituationalRows(params.value)
     .filter((row) => BOOT_ITEM_IDS.has(row.itemId))
-    .sort((a, b) => (b.pickRate ?? -1) - (a.pickRate ?? -1))
+    .sort((a, b) => (b.winRate ?? -1) - (a.winRate ?? -1) || (b.pickRate ?? -1) - (a.pickRate ?? -1))
     .slice(0, 8)
 
   return rows

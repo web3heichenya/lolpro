@@ -53,6 +53,35 @@ export default function OverlayApp() {
     }
   }, [])
 
+  useEffect(() => {
+    const api = window.overlayApi
+    if (!api) return
+
+    const minIntervalMs = 250
+    let lastReportedAt = 0
+
+    const reportInteraction = () => {
+      const now = Date.now()
+      if (now - lastReportedAt < minIntervalMs) return
+      lastReportedAt = now
+      void api.reportOverlayInteraction().catch(() => {})
+    }
+
+    const onPointer = () => reportInteraction()
+    const onWheel = () => reportInteraction()
+    const onKeyDown = () => reportInteraction()
+
+    window.addEventListener('pointerdown', onPointer, { passive: true })
+    window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      window.removeEventListener('pointerdown', onPointer)
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
+
   return (
     <TooltipProvider delayDuration={150}>
       <div
