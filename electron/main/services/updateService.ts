@@ -171,7 +171,23 @@ export class UpdateService {
     if (!feedConfig) return null
     try {
       const mod = await import('electron-updater')
-      const updater = mod.autoUpdater
+      const updater = ((mod as { autoUpdater?: unknown }).autoUpdater ??
+        (mod as { default?: { autoUpdater?: unknown } }).default?.autoUpdater) as
+        | (typeof import('electron-updater'))['autoUpdater']
+        | undefined
+      if (!updater) {
+        this.enabled = false
+        this.status = {
+          stage: 'disabled',
+          currentVersion: this.currentVersion,
+          message: 'Update service failed to initialize.',
+          canCheck: false,
+          canDownload: false,
+          canInstall: false,
+        }
+        this.emitStatus()
+        return null
+      }
 
       updater.autoDownload = false
       updater.autoInstallOnAppQuit = true
