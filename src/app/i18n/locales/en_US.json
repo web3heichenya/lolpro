@@ -1,6 +1,7 @@
 {
   "app.mode.ranked": "Ranked",
   "app.mode.aram": "ARAM",
+  "app.mode.urf": "URF",
   "app.mode.aram-mayhem": "ARAM Mayhem",
   "app.mode.arena": "Arena",
   "common.loading": "Loading",

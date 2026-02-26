@@ -1,4 +1,4 @@
-export const GAME_MODES = ['ranked', 'aram', 'aram-mayhem', 'arena'] as const
+export const GAME_MODES = ['ranked', 'aram', 'urf', 'aram-mayhem', 'arena'] as const
 
 export type GameModeId = (typeof GAME_MODES)[number]
 
@@ -9,6 +9,8 @@ export const SUPPORTED_QUEUE_TO_MODE: Record<number, GameModeId> = {
   430: 'ranked',
   440: 'ranked',
   450: 'aram',
+  900: 'urf',
+  1900: 'urf',
   2400: 'aram-mayhem',
   1700: 'arena',
   1710: 'arena',
@@ -52,6 +54,15 @@ export const MODE_META: Record<GameModeId, Omit<ModeMeta, 'id'>> = {
       accentA: '198 93% 60%',
       accentB: '210 92% 52%',
       accentC: '182 75% 48%',
+    },
+  },
+  urf: {
+    label: 'URF',
+    features: ['装备推荐', '技能加点推荐', '召唤师技能', '符文推荐'],
+    theme: {
+      accentA: '18 94% 60%',
+      accentB: '350 88% 58%',
+      accentC: '42 94% 57%',
     },
   },
   ranked: {

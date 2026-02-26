@@ -8,6 +8,7 @@
 
 - 排位（`ranked`）
 - 极地大乱斗（`aram`）
+- 无限火力（`urf`）
 - 海克斯乱斗（`aram-mayhem`）
 - 斗魂竞技场（`arena`）
 
@@ -26,6 +27,8 @@
   - `https://lol-api-champion.op.gg/api/{region}/champions/ranked/{championId}/{position}?tier={tier}`
 - 极地大乱斗（ARAM）玩法数据：
   - `https://lol-api-champion.op.gg/api/{region}/champions/aram/{championId}/none?tier={tier}`
+- 无限火力（URF）玩法数据：
+  - `https://lol-api-champion.op.gg/api/{region}/champions/urf/{championId}/none?tier={tier}`
 - 海克斯乱斗（ARAM Mayhem）玩法数据：
   - 默认数据源：Blitz Datalake GraphQL
   - 可选数据源：OP.GG 页面抓取（Next Flight 解析），通过环境变量 `ARAM_MAYHEM_SOURCE=opgg` 切换
