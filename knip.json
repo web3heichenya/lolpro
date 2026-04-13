@@ -1,0 +1,32 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "electron/main/index.ts",
+    "electron/preload/main.ts",
+    "electron/preload/overlay.ts",
+    "src/App.tsx"
+  ],
+  "project": ["src/**/*.{ts,tsx}", "electron/**/*.ts", "shared/**/*.ts", "scripts/**/*.{js,mjs,ts}"],
+  "ignore": [
+    "dist/**",
+    "dist-electron/**",
+    "release/**",
+    "scripts/after-pack.mjs",
+    "src/components/ui/**",
+    "src/app/components/glass.tsx",
+    "src/global.d.ts"
+  ],
+  "ignoreDependencies": [
+    "@fontsource/fraunces",
+    "@fontsource/manrope",
+    "@radix-ui/react-accordion",
+    "@radix-ui/react-dropdown-menu",
+    "@radix-ui/react-popover",
+    "@radix-ui/react-toggle",
+    "cmdk",
+    "eslint-config-prettier",
+    "rollup-plugin-visualizer",
+    "tailwindcss"
+  ],
+  "ignoreExportsUsedInFile": true
+}
